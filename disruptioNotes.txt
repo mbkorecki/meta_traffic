@@ -1,0 +1,44 @@
+get_intersection_in_roads
+get_intersection_out_roads
+
+
+script that loads the environment and identifies:
+1. neighbours
+2. roads and intersections 
+
+[list of roads]
+each road has:
+- (tuple of intersections it connects)
+- lanes? indicating direction
+
+[list of intersections]
+each intersection has
+- in roads
+- out roads
+- [list of neighbours]
+
+def disrupt(num_roads):
+"""
+removes a given road from the network by modifying the flow file, rerouting routes which use it,
+at first only inner roads are allowed to be disrupted - roads which connect two non-virtual intersections
+"""
+
+selects, at random, num_roads to be disrupted from the [list of roads]
+
+for each route:
+if contains disrupted road: 
+for each disrupted road: generate_alt_route
+replace disrupted road with alt_rote
+
+
+def generate_alt_route(source, goal)
+"""
+finds alternative route, returns [list of roads] 
+use bfs?
+"""
+
+
+['road_1_1_1']
+['road_1_0_1', 'road_1_1_1', 'road_1_2_1']
+('intersection_1_1', 'intersection_1_2')
+['road_1_1_0', 'road_2_1_1', 'road_2_2_2']
