@@ -23,6 +23,8 @@ class Agent:
         self.phase = Phase(ID="")
 
         self.action_freq = 10
+        self.reward_freq = 10
+        
         self.action_type = "act"
         self.clearing_time = 2
 

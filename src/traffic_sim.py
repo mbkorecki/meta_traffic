@@ -37,8 +37,8 @@ def parse_args():
     parser.add_argument("--lr", default=5e-4, type=float, help="the learning rate for the dqn, default=5e-4")
     parser.add_argument("--eps_start", default=1, type=float, help="the epsilon start")
     parser.add_argument("--eps_end", default=0.01, type=float, help="the epsilon decay")
-    # parser.add_argument("--eps_decay", default=0.95, type=float, help="the epsilon decay")
-    parser.add_argument("--eps_decay", default=5e-5, type=float, help="the epsilon decay")
+    parser.add_argument("--eps_decay", default=0.95, type=float, help="the epsilon decay")
+    # parser.add_argument("--eps_decay", default=5e-5, type=float, help="the epsilon decay")
     parser.add_argument("--eps_update", default=1799, type=float, help="how frequently epsilon is decayed")
     parser.add_argument("--load", default=None, type=str, help="path to the model to be loaded")
 
@@ -81,9 +81,10 @@ for i_episode in range(num_episodes):
       
         step = (step+1) % environ.update_freq
         if (environ.agents_type == 'learning' or environ.agents_type == 'hybrid') and step == 0:
-            if len(environ.memory)>environ.batch_size:
-                experience = environ.memory.sample()
-                logger.losses.append(optimize_model(experience, environ.local_net, environ.target_net, environ.optimizer))
+            for agent in environ.agents:
+                if len(agent.memory)>environ.batch_size:
+                    experience = agent.memory.sample()
+                    logger.losses.append(optimize_model(experience, agent.local_net, agent.target_net, agent.optimizer))
         if environ.agents_type == 'presslight' and step == 0:
             if len(environ.memory)>environ.batch_size:
                 experience = environ.memory.sample()

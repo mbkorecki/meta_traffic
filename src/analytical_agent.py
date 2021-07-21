@@ -21,8 +21,34 @@ class Analytical_Agent(Agent):
         super().__init__(eng, ID)
 
         self.action_queue = queue.Queue()
+        self.agents_type = 'analytical'
 
+    def step(self, eng, time, lane_vehs, lanes_count, veh_distance, eps, done):
+        self.update_arr_dep_veh_num(lane_vehs)
+        if time % (self.reward_freq + self.clearing_time) == 0:
+            self.total_rewards += self.get_reward(lanes_count)
+            self.reward_count += 1
+        if time % self.action_freq == 0:
+            if self.action_type == "act":
+                # self.total_rewards += self.get_reward(lanes_count)
+                # self.reward_count += 1
+                self.action, self.green_time = self.act(eng, time)
 
+                if self.phase.ID != self.action.ID:
+                    self.update_wait_time(time, self.action, self.phase, lanes_count)
+                    self.set_phase(eng, self.clearing_phase)
+                    self.action_freq = time + self.clearing_time
+                    self.action_type = "update"
+
+                else:
+                    self.action_freq = time + self.green_time
+
+            elif self.action_type == "update":
+                self.set_phase(eng, self.action)
+                self.action_freq = time + self.green_time
+                self.action_type = "act"
+
+        
     def act(self, eng, time):
         """
         selects the next action - phase for the agent to select along with the time it should stay on for
@@ -33,10 +59,10 @@ class Analytical_Agent(Agent):
 
         self.update_clear_green_time(time)
         
-        # self.stabilise(time)
-        # if not self.action_queue.empty():
-        #     phase, green_time = self.action_queue.get()
-        #     return phase, int(np.ceil(green_time))
+        self.stabilise(time)
+        if not self.action_queue.empty():
+            phase, green_time = self.action_queue.get()
+            return phase, int(np.ceil(green_time))
 
         if all([x.green_time == 0 for x in self.movements.values()]):
                 return self.phase, 5

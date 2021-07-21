@@ -6,13 +6,14 @@ import queue
 
 from learning_agent import Learning_Agent
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 class Hybrid_Agent(Learning_Agent):
 
-    def __init__(self, eng, ID='', in_roads=[], out_roads=[]):
-        super().__init__(eng, ID, in_roads, out_roads)
+    def __init__(self, eng, ID='', in_roads=[], out_roads=[], n_states=None, lr=None, batch_size=None):
+        super().__init__(eng, ID, in_roads, out_roads, n_states, lr, batch_size)
         self.action_queue = queue.Queue()
+        self.agents_type = 'hybrid'
+        self.fit_scores = []
 
     def act(self, net_local, state, time, lanes_count, eps = 0):
         """
@@ -28,7 +29,7 @@ class Hybrid_Agent(Learning_Agent):
         #     return phase
         
         if random.random() > eps:
-            state = torch.from_numpy(state).float().unsqueeze(0).to(device)
+            state = torch.from_numpy(state).float().unsqueeze(0).to(self.device)
             net_local.eval()
             with torch.no_grad():
                 action_values = net_local(state)

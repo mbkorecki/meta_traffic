@@ -6,6 +6,10 @@ import operator
 
 from intersection import Movement, Phase
 from agent import Agent
+from dqn import DQN, ReplayMemory, optimize_model
+
+import torch.nn as nn
+from torch.optim import Adam
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -13,7 +17,7 @@ class Learning_Agent(Agent):
     """
     The class defining an agent which controls the traffic lights using reinforcement learning approach called PressureLight
     """
-    def __init__(self, eng, ID='', in_roads=[], out_roads=[]):
+    def __init__(self, eng, ID='', in_roads=[], out_roads=[], n_states=0, lr=None, batch_size=None):
         """
         initialises the Learning Agent
         :param ID: the unique ID of the agent corresponding to the ID of the intersection it represents 
@@ -27,6 +31,16 @@ class Learning_Agent(Agent):
         self.init_phases_vectors(eng)
         self.n_actions = len(self.phases)
 
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+        self.local_net = DQN(n_states, self.n_actions, seed=2).to(self.device)
+        self.target_net = DQN(n_states, self.n_actions, seed=2).to(self.device)
+
+        self.optimizer = Adam(self.local_net.parameters(), lr=lr, amsgrad=True)
+        self.memory = ReplayMemory(self.n_actions, batch_size=batch_size)
+        self.agents_type = 'learning'
+
+                
     def init_phases_vectors(self, eng):
         """
         initialises vector representation of the phases
@@ -41,7 +55,41 @@ class Learning_Agent(Agent):
                 vec[idx-1] = 1
             phase.vector = vec.tolist()
             idx+=1    
-    
+
+
+    def step(self, eng, time, lane_vehs, lanes_count, veh_distance, eps, done):
+        if time % self.action_freq == 0:
+            if self.action_type == "reward":
+                reward = self.get_reward(lanes_count)
+                self.reward = reward
+                self.total_rewards += reward
+                self.reward_count += 1
+                reward = torch.tensor([reward], dtype=torch.float)
+                next_state = torch.FloatTensor(self.observe(eng, time, lanes_count, lane_vehs, veh_distance)).unsqueeze(0)
+                self.memory.add(self.state, self.action.ID, reward, next_state, done)
+                self.action_type = "act"
+
+            if self.action_type == "act":
+                self.state = np.asarray(self.observe(eng, time, lanes_count, lane_vehs, veh_distance))
+                self.action = self.act(self.local_net, self.state, time, lanes_count, eps=eps)
+                self.green_time = 10
+
+                if self.action != self.phase:
+                    self.update_wait_time(time, self.action, self.phase, lanes_count)
+                    self.set_phase(eng, self.clearing_phase)
+                    self.action_type = "update"
+                    self.action_freq = time + self.clearing_time
+                    
+                else:
+                    self.action_type = "reward"
+                    self.action_freq = time + self.green_time
+
+            elif self.action_type == "update":
+                self.set_phase(eng, self.action)
+                self.action_type = "reward"
+                self.action_freq = time + self.green_time
+
+            
     def observe(self, eng, time, lanes_count, lane_vehs, vehs_distance):
         """
         generates the observations made by the agents

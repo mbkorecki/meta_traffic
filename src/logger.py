@@ -26,6 +26,9 @@ class Logger:
 
         self.reward = 0
 
+
+
+    def make_folder(self, args):
         self.log_path = "../" + args.sim_config.split('/')[2] +'_' + 'config' + args.sim_config.split('/')[3].split('.')[0] + '_' + str(args.agents_type)
         old_path = self.log_path
         i = 1
@@ -183,6 +186,7 @@ class Logger:
         Saves machine learning models (for now just neural networks)
         :param environ: the environment in which the model was run
         """
-        torch.save(environ.local_net.state_dict(), self.log_path + '/q_net.pt')
-        torch.save(environ.target_net.state_dict(), self.log_path + '/target_net.pt')
+        for agent in environ.agents:
+            torch.save(agent.local_net.state_dict(), self.log_path + '/q_net.pt')
+            torch.save(agent.target_net.state_dict(), self.log_path + '/target_net.pt')
 
