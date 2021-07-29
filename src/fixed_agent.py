@@ -5,6 +5,7 @@ class Fixed_Agent(Agent):
 
     def __init__(self, eng, ID=''):
         super().__init__(eng, ID)
+        self.agents_type = 'fixed'
 
 
 

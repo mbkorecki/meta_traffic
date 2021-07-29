@@ -27,7 +27,6 @@ class Logger:
         self.reward = 0
 
 
-
     def make_folder(self, args):
         self.log_path = "../" + args.sim_config.split('/')[2] +'_' + 'config' + args.sim_config.split('/')[3].split('.')[0] + '_' + str(args.agents_type)
         old_path = self.log_path

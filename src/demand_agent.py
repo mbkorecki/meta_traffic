@@ -6,6 +6,7 @@ class Demand_Agent(Agent):
 
     def __init__(self, eng, ID=''):
         super().__init__(eng, ID)
+        self.agents_type = 'demand'
 
 
     def act(self, lanes_count):

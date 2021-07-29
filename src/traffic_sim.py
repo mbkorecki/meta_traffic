@@ -49,7 +49,8 @@ def parse_args():
 
 args = parse_args()
 logger = Logger(args)
-environ = Environment(args, n_actions=9, n_states=57)
+logger.make_folder(args)
+environ = Environment(args, ID=0, n_actions=9, n_states=57)
 
 num_episodes = args.num_episodes
 num_sim_steps = args.num_sim_steps

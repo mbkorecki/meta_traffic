@@ -53,8 +53,23 @@ class Environment:
 
         agent_ids = [x for x in self.eng.get_intersection_ids() if not self.eng.is_intersection_virtual(x)]
 
-        self.agents = []
-
+        for agent_id in agent_ids:
+            if self.agents_type == 'analytical':
+                new_agent = Analytical_Agent(self.eng, ID=agent_id)
+            elif self.agents_type == 'learning':
+                new_agent = Learning_Agent(self.eng, ID=agent_id, in_roads=self.eng.get_intersection_in_roads(agent_id), out_roads=self.eng.get_intersection_out_roads(agent_id))
+            elif self.agents_type == 'demand':
+                new_agent = Demand_Agent(self.eng, ID=agent_id)
+            elif self.agents_type == 'hybrid':
+                new_agent = Hybrid_Agent(self.eng, ID=agent_id, in_roads=self.eng.get_intersection_in_roads(agent_id), out_roads=self.eng.get_intersection_out_roads(agent_id))
+            elif self.agents_type == 'presslight':
+                new_agent = Presslight_Agent(self.eng, ID=agent_id, in_roads=self.eng.get_intersection_in_roads(agent_id), out_roads=self.eng.get_intersection_out_roads(agent_id))
+            elif self.agents_type == 'fixed':
+                new_agent = Fixed_Agent(self.eng, ID=agent_id)
+            else:
+                raise Exception("The specified agent type:", args.agents_type, "is incorrect, choose from: analytical/learning/demand/hybrid")  
+            self.agents.append(new_agent)
+            
         self.action_freq = 10   #typical update freq for agents
 
         
@@ -83,7 +98,7 @@ class Environment:
         :param time: the current timestep
         :param done: flag indicating weather this has been the last step of the episode, used for learning, here for interchangability of the two steps
         """
-        # print(time)
+        print(time)
         lane_vehs = self.eng.get_lane_vehicles()
         lanes_count = self.eng.get_lane_vehicle_count()
 
