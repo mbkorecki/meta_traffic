@@ -26,8 +26,7 @@ class Analytical_Agent(Agent):
     def step(self, eng, time, lane_vehs, lanes_count, veh_distance, eps, done):
         self.update_arr_dep_veh_num(lane_vehs)
         if time % (self.reward_freq + self.clearing_time) == 0:
-            self.total_rewards += self.get_reward(lanes_count)
-            self.reward_count += 1
+            self.total_rewards += [self.get_reward(lanes_count)]
         if time % self.action_freq == 0:
             if self.action_type == "act":
                 # self.total_rewards += self.get_reward(lanes_count)

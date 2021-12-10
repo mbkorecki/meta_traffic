@@ -16,7 +16,7 @@ class Agent:
         self.phases = {}
         self.clearing_phase = None
 
-        self.total_rewards = 0
+        self.total_rewards = []
         self.reward_count = 0
         
         self.action = 0
@@ -194,3 +194,33 @@ class Agent:
         for movement in self.movements.values():
             green_time = movement.get_green_time(time, self.phase.movements)
             movement.green_time = green_time
+
+
+
+    def step(self, eng, time, lane_vehs, lanes_count, veh_distance, eps, done):
+        """
+        represents a single step of the simulation for the analytical agent
+        :param time: the current timestep
+        :param done: flag indicating weather this has been the last step of the episode, used for learning, here for interchangability of the two steps
+        """
+        if time % self.action_freq == 0:
+            if self.action_type == "act":
+                self.total_rewards += self.get_reward(lanes_count)
+                self.reward_count += 1
+                self.action = self.act(lanes_count)
+                self.green_time = 10
+                    
+                if self.phase.ID != self.action.ID:
+                    self.update_wait_time(time, self.action, self.phase, lanes_count)
+                    self.set_phase(eng, self.clearing_phase)
+                    self.action_freq = time + self.clearing_time
+                    self.action_type = "update"
+                    
+                else:
+                    self.action_freq = time + self.green_time
+
+            elif self.action_type == "update":
+                self.set_phase(eng, self.action)
+                self.action_freq = time + self.green_time
+                self.action_type = "act"
+

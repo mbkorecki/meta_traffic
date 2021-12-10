@@ -31,7 +31,7 @@ class DQN(nn.Module):
         """
         super(DQN,self).__init__()
         self.seed = torch.manual_seed(seed)
-        self.fc1= nn.Linear(state_size,fc1_unit)
+        self.fc1 = nn.Linear(state_size,fc1_unit)
         self.fc2 = nn.Linear(fc1_unit,fc2_unit)
         self.fc3 = nn.Linear(fc2_unit,action_size)
     

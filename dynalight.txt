@@ -1,0 +1,95 @@
+simple neural networks trained on simple intersections with known solutions 
+dynamics of simple intersections
+dynamics of the learning process 
+dynamics of the network at inference
+
+
+
+
+torus world, closed vs open systems
+the appearing/disappearing dynamics is conditioned on the network parameters so that it can never learn it 
+
+
+in the torus world, if the cars always have the same path and speed, then it is likely that the optimal solution would be periodic 
+
+0. dqlearning, quantify the novelty of samples and use them for training proportionally to their novelty
+
+1. the reward is dependent on the dynamics of the system, in a congested state less should be expected of the agent, the reward should be normalised relative to the dynamics of the system
+
+2. optimal metrics (throughput, avg. travel time) can be computed exactly if we assume no conflicting movements; it can be approximated if we assume conflicts but know about their time dynamics
+
+3. a system that goes through the experiences and improves decisions made, perhaps testing their effectiveness, some sort of memory-replay refinement or supervised learning on optimal decisions 
+
+4. state can be represented as a graph of movements?
+
+5. an intelligent system than works even when one of the intersection in the system is intelligent and gets incrementally better with more intersections
+
+6. learning agents in the volunteer game, reinforcement learning, with the reward being the payoff
+investigate the difference between systems where agents learn the global reward, vs individual reward, vs local, mezo-reward
+how does learning affect the dynamics, what strategies are learned+evolved vs just evolved 
+
+=================================================
+Experiments on the small simulation/sphere-world: 
+=================================================
+A few scenarios run on the sphere-world or a simple network to study the dynamics of the system, especially the difference in dynamics between non-congested and congested states.
+
+Start with the sphere and compare to a 2x1 network. 
+
+----------------
+Parametrization:
+----------------
+1. in-flow on each movement/the number of cars/density on each movement (if we assume cyclical)
+2. paths of the cars: 
+- easy setting: no conflicting movements
+- harder setting: some conflicting movements
+- hard setting: many conflicts 
+
+--------
+Metrics:
+--------
+1. flow at movements/lanes/intersection 
+2. density at movements/lanes/intersection 
+5. pressure 
+4. number of stops 
+7. speeds
+
+6. selected phases
+3. average travel time 
+8. state?
+
+9. spread/distribution of cars in the network
+
+random movements, random lights
+
+TODO:
+- train model on normal scenario ensemble, test on disrupted 
+
+1x1sphere: veh number:
+30 - free flow
+60 - medium low
+120 - medium high
+180 - breakdown
+
+
+
+
+
+
+
+
+
+
+Resilience paper:
+(1) to discuss and
+expand the connections, relations and interdependencies between participation
+and urban resilience, while defining the later in a holistic and precise way, and
+(2), to provide an overview of the paths to assess the potential impact of such
+participatory governance practices into resilience
+- traffic system, intersection participate and interact to be more resilient
+- ad-hoc networks, cooperation for greater resilience 
+- game theoretic approach, critical mass of users, resilience related to participation 
+- decentralization increases resilience
+- real-world examples of technologies where participation improves resilience
+- energy grid: https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=9281763
+https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=6016094
+

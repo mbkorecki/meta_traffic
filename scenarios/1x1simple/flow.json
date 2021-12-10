@@ -8,14 +8,14 @@
       "usualPosAcc": 2.0,
       "usualNegAcc": 4.5,
       "minGap": 2.5,
-      "maxSpeed": 16.67,
+      "maxSpeed": 11.11,
       "headwayTime": 1.5
     },
     "route": [
       "road_0_1_0",
       "road_1_1_0"
     ],
-    "interval": 2.0,
+    "interval": 1.0,
     "startTime": 0,
     "endTime": -1
   },
@@ -28,14 +28,14 @@
       "usualPosAcc": 2.0,
       "usualNegAcc": 4.5,
       "minGap": 2.5,
-      "maxSpeed": 16.67,
+      "maxSpeed": 11.11,
       "headwayTime": 1.5
     },
     "route": [
       "road_2_1_2",
       "road_1_1_2"
     ],
-    "interval": 2.0,
+    "interval": 1.0,
     "startTime": 0,
     "endTime": -1
   }
