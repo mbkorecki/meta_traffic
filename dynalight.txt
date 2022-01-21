@@ -28,6 +28,12 @@ in the torus world, if the cars always have the same path and speed, then it is 
 investigate the difference between systems where agents learn the global reward, vs individual reward, vs local, mezo-reward
 how does learning affect the dynamics, what strategies are learned+evolved vs just evolved 
 
+7. extract graph topologies from sat images, generate realistic networks
+
+8. an array of simple models that answer questions such as:
+- is the decision affecting neighbours positively/negatively 
+- is my relation with my neighbours positive/negative (cooperation/competition) 
+
 =================================================
 Experiments on the small simulation/sphere-world: 
 =================================================
@@ -62,7 +68,22 @@ Metrics:
 random movements, random lights
 
 TODO:
+- run experiments on larger closed systems (1x2 pressure does not work)
+- run experiments on open system scenario, 1x1 or larger?
+	- create a way to generate flow at random 
+		- for each in_lane of the roadnet model the in_flow
+		as a normal distribution with random mean from a uniform distribution [0, 1] and deviation 
+		from another uniform distribution, complex but more realistic
+	OR
+		- fixed number of vehicles to be introduced into the system per the sim runtime 
+		distribute this number randomly over in_lanes by creating random routes, simple but limited
+
 - train model on normal scenario ensemble, test on disrupted 
+	- design training so that guidedlight can generalise to disruptions 
+- train on 1 scenario, test on a sample 
+- add spread (second moment on density) 
+- more than one model, based on states?
+- VEHICLES HAVE CRAZY STARTING POINTS!!!
 
 1x1sphere: veh number:
 30 - free flow
@@ -70,26 +91,31 @@ TODO:
 120 - medium high
 180 - breakdown
 
+python traffic_sim.py --sim_config '../exp//scenarios/0/0.config' --num_sim_steps 1800 --num_episodes 100 --lr 0.0005 --agents_type hybrid
+
+
+=====================
+CONCLUSIONS
+=====================
+1. analytic > fixed > random, but for highly congested scenario all are equally bad
+2. pressure-based reward does not work for a 1x1 sphere, hypothesis: closed system, leads to correlation between decisions and its own state, which breaks pressure 
 
 
 
+9. a traffic signal control system that controls max speed on lanes to limit/decouple interactions and slow the dynamics
+10. list interaction and try to affect them:
+- vehicles and vehicles
+- vehicles and intersection 
+- intersection+ and intersection+
+
+11. use resilience index as a reward 
 
 
+Reinforcement learning as a paradigm may be applied to problems, where the understanding of the system to be controlled is limited. The relationship between the (arbitrary) state of the system and a reward or goal (some arbitrary preferred state) is learned in a data driven way. The arbitrariness (thesis) of the system's description affects what is learned. At the same time, what is learned, speaks about the system description. By introducing unsupervised learning, clustering the data space can be continuously (incrementally) partitioned into easier to learn pieces (antithesis). Individual models of the relation(s) may be learned, evolved and co-evolved (synthesis). Both the state and reward space can undergo this defragmentation. A base model for some more frequently occurring relations (across a variety of topologies and flows) can be extracted and used as an initialisation for different settings. The clusters, relations and models can be used to reverse engineer the shattering of the system and through that key components and their interactions(!) can be identified. 
+
+Extension: when a decision is made, the state is assigned to a cluster and a model of that cluster is used. Voting systems and collective decision making can be used for states that fall on the boundaries. The boundaries of the clusters can also be studied. 
+
+Possible clusters: low/high traffic, congestion/freeflow, critical points
 
 
-
-
-Resilience paper:
-(1) to discuss and
-expand the connections, relations and interdependencies between participation
-and urban resilience, while defining the later in a holistic and precise way, and
-(2), to provide an overview of the paths to assess the potential impact of such
-participatory governance practices into resilience
-- traffic system, intersection participate and interact to be more resilient
-- ad-hoc networks, cooperation for greater resilience 
-- game theoretic approach, critical mass of users, resilience related to participation 
-- decentralization increases resilience
-- real-world examples of technologies where participation improves resilience
-- energy grid: https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=9281763
-https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=6016094
 

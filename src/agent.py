@@ -47,6 +47,17 @@ class Agent:
         """
         self.in_lanes_length = {}
         self.out_lanes_length = {}
+
+        # for in_road in eng.get_intersection_in_roads(self.ID):
+        #     for lane, length in eng.get_road_lanes_length(in_road):
+        #         lane_length = length
+        #         self.in_lanes_length.update({lane : length})
+
+        # for out_road in eng.get_intersection_out_roads(self.ID):
+        #     for lane, length in eng.get_road_lanes_length(out_road):
+        #         out_lane_length = length
+        #         self.out_lanes_length.update({lane : length})
+        
         for idx, roadlink in enumerate(eng.get_intersection_lane_links(self.ID)):
             lanes = roadlink[1][:]
             in_road = roadlink[0][0]
@@ -197,7 +208,7 @@ class Agent:
 
 
 
-    def step(self, eng, time, lane_vehs, lanes_count, veh_distance, eps, done):
+    def step(self, eng, time, lane_vehs, lanes_count, veh_distance, eps, memory, local_net, done):
         """
         represents a single step of the simulation for the analytical agent
         :param time: the current timestep

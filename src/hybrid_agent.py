@@ -11,9 +11,7 @@ class Hybrid_Agent(Learning_Agent):
 
     def __init__(self, eng, ID='', in_roads=[], out_roads=[], n_states=None, lr=None, batch_size=None):
         super().__init__(eng, ID, in_roads, out_roads, n_states, lr, batch_size)
-        self.action_queue = queue.Queue()
         self.agents_type = 'hybrid'
-        self.fit_scores = []
 
     def act(self, net_local, state, time, lanes_count, eps = 0):
         """
@@ -62,46 +60,44 @@ class Hybrid_Agent(Learning_Agent):
                 #explore randomly
                 return self.phases[random.choice(np.arange(self.n_actions))]
 
+    # def get_reward(self, eng, lane_vehs):
+    #     sum_distance = 0
+    #     num_vehs = 0
+    #     for lane in self.in_lanes:
+    #         for veh in lane_vehs[lane]:
+    #             leader = eng.get_leader(veh)
+    #             if veh != '' and leader != '':
+    #                 leader_distance = float(eng.get_vehicle_info(leader)['distance'])
+    #                 sum_distance += abs(leader_distance - float(eng.get_vehicle_info(veh)['distance']))
+    #                 num_vehs += 1
+    #     for lane in self.out_lanes:
+    #         for veh in lane_vehs[lane]:
+    #             leader = eng.get_leader(veh)
+    #             if veh != '' and leader != '':
+    #                 leader_distance = float(eng.get_vehicle_info(leader)['distance'])
+    #                 sum_distance += abs(leader_distance - float(eng.get_vehicle_info(veh)['distance'])) 
+    #                 num_vehs += 1
+    #     if num_vehs == 0:
+    #         return self.movements[0].in_length
+    #     else:
+    #         return sum_distance / num_vehs
 
-
-
-    def get_reward(self, eng, lane_vehs):
-        sum_distance = 0
-        num_vehs = 0
-        for lane in self.in_lanes:
-            for veh in lane_vehs[lane]:
-                leader = eng.get_leader(veh)
-                if veh != '' and leader != '':
-                    leader_distance = float(eng.get_vehicle_info(leader)['distance'])
-                    sum_distance += abs(leader_distance - float(eng.get_vehicle_info(veh)['distance']))
-                    num_vehs += 1
-        for lane in self.out_lanes:
-            for veh in lane_vehs[lane]:
-                leader = eng.get_leader(veh)
-                if veh != '' and leader != '':
-                    leader_distance = float(eng.get_vehicle_info(leader)['distance'])
-                    sum_distance += abs(leader_distance - float(eng.get_vehicle_info(veh)['distance'])) 
-                    num_vehs += 1
-        if num_vehs == 0:
-            return self.movements[0].in_length
-        else:
-            return sum_distance / num_vehs
-
-    def step(self, eng, time, lane_vehs, lanes_count, veh_distance, eps, done):
+    def step(self, eng, time, lane_vehs, lanes_count, veh_distance, eps, memory, local_net, done):
         if time % self.action_freq == 0:
             if self.action_type == "reward":
-                reward = self.get_reward(eng, lane_vehs)
+                reward = self.get_reward(lanes_count)
                 self.reward = reward
-                self.total_rewards += reward
+                self.total_rewards += [reward]
                 self.reward_count += 1
                 reward = torch.tensor([reward], dtype=torch.float)
                 next_state = torch.FloatTensor(self.observe(eng, time, lanes_count, lane_vehs, veh_distance)).unsqueeze(0)
-                self.memory.add(self.state, self.action.ID, reward, next_state, done)
+
+                memory.add(self.state, self.action.ID, reward, next_state, done)
                 self.action_type = "act"
 
             if self.action_type == "act":
                 self.state = np.asarray(self.observe(eng, time, lanes_count, lane_vehs, veh_distance))
-                self.action = self.act(self.local_net, self.state, time, lanes_count, eps=eps)
+                self.action = self.act(local_net, self.state, time, lanes_count, eps=eps)
                 self.green_time = 10
 
                 if self.action != self.phase:

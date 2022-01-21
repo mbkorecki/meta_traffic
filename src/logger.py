@@ -151,7 +151,10 @@ class Logger:
         :param environ: the environment in which the model was run
         :param flag: the flag indicating which model to save - throughput based or avg. travel time based
         """
-        if flag:
+        if flag is None:
+            torch.save(environ.local_net.state_dict(), self.log_path + '/reward_q_net.pt')
+            torch.save(environ.target_net.state_dict(), self.log_path + '/reward_target_net.pt') 
+        elif flag:
             torch.save(environ.local_net.state_dict(), self.log_path + '/throughput_q_net.pt')
             torch.save(environ.target_net.state_dict(), self.log_path + '/throughput_target_net.pt')
         else: 

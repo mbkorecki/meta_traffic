@@ -18,9 +18,13 @@ from hybrid_agent import Hybrid_Agent
 from presslight_agent import Presslight_Agent
 from fixed_agent import Fixed_Agent
 from random_agent import Random_Agent
+from cluster_agent import Cluster_Agent
 
 from policy_agent import DPGN, Policy_Agent
 from intersection import Lane
+
+import SOStream.sostream
+
 
 class Environment:
     """
@@ -52,9 +56,8 @@ class Environment:
         random.seed(2)
 
         self.agents_type = args.agents_type
-
-        agent_ids = [x for x in self.eng.get_intersection_ids() if not self.eng.is_intersection_virtual(x)]
         
+        agent_ids = [x for x in self.eng.get_intersection_ids() if not self.eng.is_intersection_virtual(x)]
         for agent_id in agent_ids:
             if self.agents_type == 'analytical':
                 new_agent = Analytical_Agent(self.eng, ID=agent_id)
@@ -70,6 +73,9 @@ class Environment:
                 new_agent = Fixed_Agent(self.eng, ID=agent_id)
             elif self.agents_type == 'random':
                 new_agent = Random_Agent(self.eng, ID=agent_id)
+            elif self.agents_type == 'cluster':
+                new_agent = Cluster_Agent(self.eng, ID=agent_id, in_roads=self.eng.get_intersection_in_roads(agent_id), out_roads=self.eng.get_intersection_out_roads(agent_id), n_states=n_states, lr=args.lr, batch_size=self.batch_size)
+                self.clustering = SOStream.sostream.SOStream(alpha=0.3, min_pts=3, merge_threshold=100)
             else:
                 raise Exception("The specified agent type:", args.agents_type, "is incorrect, choose from: analytical/learning/demand/hybrid/fixed/random")  
             self.agents.append(new_agent)
@@ -79,6 +85,7 @@ class Environment:
         
         self.n_actions = len(self.agents[0].phases)
         self.n_states = n_states
+        
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         
         if args.load:
@@ -151,13 +158,17 @@ class Environment:
         
 
         veh_distance = 0
-        if self.agents_type == "hybrid" or self.agents_type == "learning":
+        if self.agents_type == "hybrid" or self.agents_type == "learning" or self.agents_type == 'cluster':
             veh_distance = self.eng.get_vehicle_distance()
 
         for agent in self.agents:
             if agent.agents_type == "hybrid":
                 agent.update_arr_dep_veh_num(lane_vehs)
-            agent.step(self.eng, time, lane_vehs, lanes_count, veh_distance, self.eps, done)
+
+            if agent.agents_type == "cluster":
+                agent.step(self.eng, time, lane_vehs, lanes_count, veh_distance, self.eps, self.clustering, done)
+            else:
+                agent.step(self.eng, time, lane_vehs, lanes_count, veh_distance, self.eps, self.memory, self.local_net, done)
 
         if time % self.action_freq == 0: self.eps = max(self.eps-self.eps_decay,self.eps_end)
         # if time % self.eps_update == 0: self.eps = max(self.eps*self.eps_decay,self.eps_end)

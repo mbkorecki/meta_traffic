@@ -44,22 +44,22 @@ def parse_args():
     parser.add_argument("--replay", default=False, type=bool, help="saving replay")
     parser.add_argument("--mfd", default=True, type=bool, help="saving mfd data")
     parser.add_argument("--path", default='../', type=str, help="path to save data")
+    parser.add_argument("--meta", default=False, type=bool, help="indicates if meta learning for ML")
 
     return parser.parse_args()
-
 
 
 args = parse_args()
 logger = Logger(args)
 environ = Environment(args, n_actions=9, n_states=57)
-
+        
 num_episodes = args.num_episodes
 num_sim_steps = args.num_sim_steps
 
 step = 0
 best_time = 999999
 best_veh_count = 0
-best_reward = 0
+best_reward = -999999
 saved_model = None
 environ.best_epoch = 0
     
@@ -74,8 +74,14 @@ for i_episode in range(num_episodes):
     logger.losses = []
     if i_episode == num_episodes-1 and args.replay:
         environ.eng.set_save_replay(open=True)
-        environ.eng.set_replay_file(logger.log_path.split('/')[0] + "/../" + logger.log_path.split('/')[1] + "/replay_file.txt")
-    
+        print(args.path + "../replay_file.txt")
+        environ.eng.set_replay_file(args.path + "../replay_file.txt")
+
+    if args.meta:
+        config_path =  args.sim_config.split('/')[0] + '/' + args.sim_config.split('/')[1] + '/scenarios/' + str(i_episode) + "/" + str(i_episode) + ".config"
+        environ.eng = cityflow.Engine(config_path, thread_num=8)
+        
+        
     print("episode ", i_episode)
     done = False
 
@@ -89,11 +95,19 @@ for i_episode in range(num_episodes):
         t += 1
       
         step = (step+1) % environ.update_freq
-        if args.mode == 'train' and (environ.agents_type == 'learning' or environ.agents_type == 'hybrid') and step == 0:
+        if step == 0 and args.mode == 'train':
+            if environ.agents_type == 'cluster':
+                all_losses = []
+                for cluster in environ.clustering.M[-1]:
+                    if len(cluster.memory) > environ.batch_size:
+                        experience = cluster.memory.sample()
+                        all_losses.append(optimize_model(experience, cluster.local_net, cluster.target_net, environ.optimizer))
+                        logger.losses.append(np.mean(all_losses))
+        elif environ.agents_type == 'learning' or environ.agents_type == 'hybrid':
             if len(environ.memory)>environ.batch_size:
                 experience = environ.memory.sample()
                 logger.losses.append(optimize_model(experience, environ.local_net, environ.target_net, environ.optimizer))
-        if args.mode == 'train' and environ.agents_type == 'presslight' and step == 0:
+        elif environ.agents_type == 'presslight':
             if len(environ.memory)>environ.batch_size:
                 experience = environ.memory.sample()
                 logger.losses.append(optimize_model(experience, environ.local_net, environ.target_net, environ.optimizer, tau=1))
@@ -110,14 +124,21 @@ for i_episode in range(num_episodes):
             environ.best_epoch = i_episode
     
     logger.log_measures(environ)
-    print(logger.reward, environ.eng.get_average_travel_time(), environ.eng.get_finished_vehicle_count())
 
-  
+    if environ.agents_type == 'learning' or environ.agents_type == 'hybrid' or  environ.agents_type == 'presslight':
+        # if logger.reward > best_reward:
+        best_reward = logger.reward
+        logger.save_models(environ, flag=None)
+    
+    print(logger.reward, environ.eng.get_average_travel_time(), environ.eng.get_finished_vehicle_count())
+    print(len(environ.clustering.M[-1]), [len(x.memory) for x in environ.clustering.M[-1]])
+        
+logger.save_models(environ, flag=None)
 logger.save_log_file(environ)
 logger.serialise_data(environ)
 
-if environ.agents_type == 'learning' or environ.agents_type == 'hybrid' or environ.agents_type == 'presslight' or environ.agents_type == 'policy':
-    logger.save_measures_plots()
+# if environ.agents_type == 'learning' or environ.agents_type == 'hybrid' or environ.agents_type == 'presslight' or environ.agents_type == 'policy':
+#     logger.save_measures_plots()
 
 
 
