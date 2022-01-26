@@ -5,7 +5,6 @@ from SOStream.find_overlap import find_overlap
 from SOStream.merge_clusters import merge_clusters
 from SOStream.new_cluster import newCluster
 
-
 class SOStream:
 
     def __init__(self, alpha = 0.1, min_pts = 10, merge_threshold = 27000):
@@ -17,6 +16,21 @@ class SOStream:
     def process(self, vt):
         winner_micro_cluster = min_dist(vt, self.M[-1])        
         new_M = self.M[-1].copy()
+        
+        # if new_M and new_M[-1]:
+        #     for name, param in new_M[-1].local_net.named_parameters():
+        #         if param.requires_grad:
+        #             # param.data[1][1] *= 0.5
+        #             print('1: ', name, param.data[1][1])
+        #         print(len(new_M[-1].data))
+        #         break
+        #     for name, param in self.M[-1][-1].local_net.named_parameters():
+        #         if param.requires_grad:
+        #             # param.data[1][1] *= 0.5
+        #             print('2:', name, param.data[1][1])
+        #         print(len(new_M[-1].data))
+        #         break
+                
         assigned_cluster = None
         
         if len(new_M) >= self.min_pts:

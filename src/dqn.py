@@ -80,6 +80,7 @@ def optimize_model(experiences, net_local, net_target, optimizer, gamma=GAMMA, t
 
     # ------------------- update target network ------------------- #
     soft_update(net_local, net_target,TAU)
+
     return loss.item()
 
         

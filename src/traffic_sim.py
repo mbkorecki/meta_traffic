@@ -45,6 +45,7 @@ def parse_args():
     parser.add_argument("--mfd", default=True, type=bool, help="saving mfd data")
     parser.add_argument("--path", default='../', type=str, help="path to save data")
     parser.add_argument("--meta", default=False, type=bool, help="indicates if meta learning for ML")
+    parser.add_argument("--load_cluster", default=None, type=str, help="path to the clusters and models to be loaded")
 
     return parser.parse_args()
 
@@ -101,12 +102,26 @@ for i_episode in range(num_episodes):
                 for cluster in environ.clustering.M[-1]:
                     if len(cluster.memory) > environ.batch_size:
                         experience = cluster.memory.sample()
-                        all_losses.append(optimize_model(experience, cluster.local_net, cluster.target_net, environ.optimizer))
+
+                        for name, param in cluster.local_net.named_parameters():
+                            if param.requires_grad:
+                                dp1 = param.data[1][1]
+                                grad =  list(cluster.local_net.parameters())[0].grad
+                            break
+
+                        all_losses.append(optimize_model(experience, cluster.local_net, cluster.target_net, cluster.optimizer))
+
+                        for name, param in cluster.local_net.named_parameters():
+                            if param.requires_grad:
+                                dp2 = param.data[1][1]
+                            break
+                        print(dp1, dp2)
                         logger.losses.append(np.mean(all_losses))
+
         elif environ.agents_type == 'learning' or environ.agents_type == 'hybrid':
             if len(environ.memory)>environ.batch_size:
                 experience = environ.memory.sample()
-                logger.losses.append(optimize_model(experience, environ.local_net, environ.target_net, environ.optimizer))
+
         elif environ.agents_type == 'presslight':
             if len(environ.memory)>environ.batch_size:
                 experience = environ.memory.sample()
@@ -131,8 +146,13 @@ for i_episode in range(num_episodes):
         logger.save_models(environ, flag=None)
     
     print(logger.reward, environ.eng.get_average_travel_time(), environ.eng.get_finished_vehicle_count())
-    print(len(environ.clustering.M[-1]), [len(x.memory) for x in environ.clustering.M[-1]])
-        
+
+    if environ.agents_type == 'cluster':
+        print(len(environ.clustering.M[-1]), [len(x.memory) for x in environ.clustering.M[-1]])
+
+if environ.agents_type == 'cluster':
+    logger.save_clusters(environ)
+
 logger.save_models(environ, flag=None)
 logger.save_log_file(environ)
 logger.serialise_data(environ)

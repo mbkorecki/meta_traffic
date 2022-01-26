@@ -5,6 +5,7 @@ from SOStream.utils import dist
 def updateCluster(win_micro_cluster, vt, alpha, winner_neighborhood):
     win_micro_cluster.centroid = (win_micro_cluster.number_points * win_micro_cluster.centroid + vt) / (win_micro_cluster.number_points+1)
     win_micro_cluster.number_points += 1
+
     win_micro_cluster.data.append(vt)
     
     width_neighbor = win_micro_cluster.radius ** 2

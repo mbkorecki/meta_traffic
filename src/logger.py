@@ -162,6 +162,19 @@ class Logger:
             torch.save(environ.target_net.state_dict(), self.log_path + '/time_target_net.pt')
 
 
+
+    def save_clusters(self, environ):
+        os.mkdir(self.log_path + '/cluster_nets')
+        for i, cluster in enumerate(environ.clustering.M[-1]):
+            torch.save(cluster.local_net.state_dict(), self.log_path + '/cluster_nets/cluster' + str(i) + '_q_net.pt')
+            torch.save(cluster.target_net.state_dict(), self.log_path + '/cluster_nets/cluster' + str(i) + '_target_net.pt')
+            cluster.local_net = None
+            cluster.target_net = None
+        # environ.clustering.M = [environ.clustering.M[-1]]
+        
+        with open(self.log_path + "/" + "clustering.dill", "wb") as f:
+            dill.dump(environ.clustering, f)
+
     def plot_pressure(self, environ):
         """
         plots pressure as a function of time, both avg pressure of all intersections and individual pressure

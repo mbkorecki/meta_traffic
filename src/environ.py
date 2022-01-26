@@ -4,6 +4,7 @@ import torch.optim as optim
 import numpy as np
 import matplotlib.pyplot as plt
 import random
+import dill
 
 import torch
 import torch.nn as nn
@@ -75,7 +76,7 @@ class Environment:
                 new_agent = Random_Agent(self.eng, ID=agent_id)
             elif self.agents_type == 'cluster':
                 new_agent = Cluster_Agent(self.eng, ID=agent_id, in_roads=self.eng.get_intersection_in_roads(agent_id), out_roads=self.eng.get_intersection_out_roads(agent_id), n_states=n_states, lr=args.lr, batch_size=self.batch_size)
-                self.clustering = SOStream.sostream.SOStream(alpha=0.3, min_pts=3, merge_threshold=100)
+                self.clustering = SOStream.sostream.SOStream(alpha=0.3, min_pts=3, merge_threshold=0.5)
             else:
                 raise Exception("The specified agent type:", args.agents_type, "is incorrect, choose from: analytical/learning/demand/hybrid/fixed/random")  
             self.agents.append(new_agent)
@@ -100,6 +101,19 @@ class Environment:
             self.local_net = DQN(self.n_states, self.n_actions, seed=2).to(self.device)
             self.target_net = DQN(self.n_states, self.n_actions, seed=2).to(self.device)
 
+
+        if args.load_cluster:
+            with open(args.load_cluster + "/clustering.dill", "rb") as f:
+                self.clustering = dill.load(f)
+
+            for i, cluster in enumerate(self.clustering.M[-1]):
+                cluster.local_net = DQN(self.n_states, self.n_actions, seed=2).to(self.device)
+                cluster.local_net.load_state_dict(torch.load(args.load_cluster + '/cluster_nets/cluster' + str(i) + '_q_net.pt'))
+                cluster.local_net.eval()
+                cluster.target_net = DQN(self.n_states, self.n_actions, seed=2).to(self.device)
+                cluster.target_net.load_state_dict(torch.load(args.load_cluster + '/cluster_nets/cluster' + str(i) + '_target_net.pt'))
+                cluster.target_net.eval()
+                            
         self.optimizer = optim.Adam(self.local_net.parameters(), lr=args.lr, amsgrad=True)
         self.memory = ReplayMemory(self.n_actions, batch_size=args.batch_size)
 

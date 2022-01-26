@@ -117,5 +117,6 @@ Extension: when a decision is made, the state is assigned to a cluster and a mod
 
 Possible clusters: low/high traffic, congestion/freeflow, critical points
 
-
+12. what kind of metric is optimised by analytic?
+13. visualise: cluster, state space, distances between state space points, pressure
 

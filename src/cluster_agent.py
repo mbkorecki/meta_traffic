@@ -28,7 +28,11 @@ class Cluster_Agent(Hybrid_Agent):
             if self.action_type == "act":
                 self.state = np.asarray(self.observe(eng, time, lanes_count, lane_vehs, veh_distance))
 
-                self.assigned_cluster = clustering.process(self.state)
+                # self.assigned_cluster = clustering.process(self.state)
+                # self.assigned_cluster = clustering.process(np.asarray([self.get_reward(lanes_count), self.phase.ID]))
+                self.assigned_cluster = clustering.process(self.get_reward(lanes_count))
+                # self.assigned_cluster = clustering.process(np.asarray([self.get_reward(lanes_count), time]))
+
 
                 self.action = self.act(self.assigned_cluster.local_net, self.state, time, lanes_count, eps=eps)
                 self.green_time = 10

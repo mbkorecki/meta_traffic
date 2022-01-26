@@ -2,12 +2,13 @@ from src.dqn import DQN, ReplayMemory
 
 import torch
 import torch.optim as optim
+import copy
 
 glob_n_states = 57
 
 class MicroCluster:
 
-    def __init__(self, centroid, data=[], number_points = 1, radius = 0, memory=None, local_net=None, target_net=None, lr=None):
+    def __init__(self, centroid, data=[], number_points = 1, radius = 0, memory=None, local_net=None, target_net=None, optimizer=None):
         self.number_points = number_points
         self.radius = radius
         self.centroid = centroid
@@ -22,7 +23,7 @@ class MicroCluster:
         else:
             self.memory = ReplayMemory(action_size=9, batch_size=64)
 
-        #functions for initialising new dqns from neighbours etc.
+        #define functions for initialising new dqns from neighbours etc.
         if local_net:
             self.local_net = local_net
         else:
@@ -33,9 +34,9 @@ class MicroCluster:
         else:
             self.target_net = DQN(glob_n_states, 9, seed=2).to(self.device)
 
-        if lr:
-            self.optimizer = optim.Adam(self.local_net.parameters(), lr=lr, amsgrad=True)
+        if optimizer:
+            self.optimizer = optimizer
         else:
             self.optimizer = optim.Adam(self.local_net.parameters(), lr=5e-4, amsgrad=True)
-
+        
     pass
