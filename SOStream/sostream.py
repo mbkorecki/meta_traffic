@@ -13,49 +13,44 @@ class SOStream:
         self.M = [[]]
         self.merge_threshold = merge_threshold
 
-    def process(self, vt):
+        self.id_count = 0
+
+    def process(self, vt, cluster_models):
         winner_micro_cluster = min_dist(vt, self.M[-1])        
         new_M = self.M[-1].copy()
         
-        # if new_M and new_M[-1]:
-        #     for name, param in new_M[-1].local_net.named_parameters():
-        #         if param.requires_grad:
-        #             # param.data[1][1] *= 0.5
-        #             print('1: ', name, param.data[1][1])
-        #         print(len(new_M[-1].data))
-        #         break
-        #     for name, param in self.M[-1][-1].local_net.named_parameters():
-        #         if param.requires_grad:
-        #             # param.data[1][1] *= 0.5
-        #             print('2:', name, param.data[1][1])
-        #         print(len(new_M[-1].data))
-        #         break
-                
-        assigned_cluster = None
+        assigned_cluster_id = None
+        deleted_clusters = None
         
         if len(new_M) >= self.min_pts:
             winner_neighborhood = find_neighbors(winner_micro_cluster, self.min_pts, new_M)
             if dist(vt, winner_micro_cluster.centroid) < winner_micro_cluster.radius:
                 updateCluster(winner_micro_cluster, vt, self.alpha, winner_neighborhood)
-                assigned_cluster = winner_micro_cluster
+                assigned_cluster_id = winner_micro_cluster.ID
             else:
-                new_M.append(newCluster(vt))
-                assigned_cluster = new_M[-1]
+                new_M.append(newCluster(vt, self.id_count))
+                cluster_models.add_model(self.id_count)
+                self.id_count += 1
+                assigned_cluster_id = new_M[-1].ID
 
             overlap = find_overlap(winner_micro_cluster, winner_neighborhood)
             if len(overlap) > 0:
-                merged_cluster, deleted_clusters = merge_clusters(winner_micro_cluster, overlap, self.merge_threshold)
+                merged_cluster, deleted_clusters = merge_clusters(winner_micro_cluster, overlap, self.merge_threshold, cluster_models)
                 for deleted_cluster in deleted_clusters:
                     new_M.remove(deleted_cluster)
+                    # if deleted_cluster.ID != merged_cluster.ID:
+                    #     cluster_models.delete_model(deleted_cluster.ID)
                 if merged_cluster is not None:
                     new_M.append(merged_cluster)
-                    assigned_cluster = merged_cluster
+                    assigned_cluster_id = merged_cluster.ID
         else:
-            new_M.append(newCluster(vt))
-            assigned_cluster = new_M[-1]
+            new_M.append(newCluster(vt, self.id_count))
+            cluster_models.add_model(self.id_count)
+            self.id_count += 1
+            assigned_cluster_id = new_M[-1].ID
 
         self.M.append(new_M)
         # print('clustering ', len(assigned_cluster.memory), len(assigned_cluster.data))
-        return assigned_cluster
+        return assigned_cluster_id
 
     pass

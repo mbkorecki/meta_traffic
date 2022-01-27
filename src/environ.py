@@ -25,7 +25,7 @@ from policy_agent import DPGN, Policy_Agent
 from intersection import Lane
 
 import SOStream.sostream
-
+from clustering import Cluster_Models
 
 class Environment:
     """
@@ -58,6 +58,7 @@ class Environment:
 
         self.agents_type = args.agents_type
         
+        
         agent_ids = [x for x in self.eng.get_intersection_ids() if not self.eng.is_intersection_virtual(x)]
         for agent_id in agent_ids:
             if self.agents_type == 'analytical':
@@ -76,7 +77,6 @@ class Environment:
                 new_agent = Random_Agent(self.eng, ID=agent_id)
             elif self.agents_type == 'cluster':
                 new_agent = Cluster_Agent(self.eng, ID=agent_id, in_roads=self.eng.get_intersection_in_roads(agent_id), out_roads=self.eng.get_intersection_out_roads(agent_id), n_states=n_states, lr=args.lr, batch_size=self.batch_size)
-                self.clustering = SOStream.sostream.SOStream(alpha=0.3, min_pts=3, merge_threshold=0.5)
             else:
                 raise Exception("The specified agent type:", args.agents_type, "is incorrect, choose from: analytical/learning/demand/hybrid/fixed/random")  
             self.agents.append(new_agent)
@@ -86,6 +86,11 @@ class Environment:
         
         self.n_actions = len(self.agents[0].phases)
         self.n_states = n_states
+        
+        if self.agents_type == 'cluster':
+            self.cluster_models = Cluster_Models(n_states=n_states, n_actions=self.n_actions, lr=args.lr, batch_size=self.batch_size)
+            self.cluster_algo = SOStream.sostream.SOStream(alpha=0, min_pts=9, merge_threshold=0.01)
+            # self.cluster_algo = SOStream.sostream.SOStream(alpha=0.1, min_pts=5, merge_threshold=0.5)
         
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         
@@ -104,16 +109,19 @@ class Environment:
 
         if args.load_cluster:
             with open(args.load_cluster + "/clustering.dill", "rb") as f:
-                self.clustering = dill.load(f)
+                self.cluster_algo = dill.load(f)
 
-            for i, cluster in enumerate(self.clustering.M[-1]):
-                cluster.local_net = DQN(self.n_states, self.n_actions, seed=2).to(self.device)
-                cluster.local_net.load_state_dict(torch.load(args.load_cluster + '/cluster_nets/cluster' + str(i) + '_q_net.pt'))
-                cluster.local_net.eval()
-                cluster.target_net = DQN(self.n_states, self.n_actions, seed=2).to(self.device)
-                cluster.target_net.load_state_dict(torch.load(args.load_cluster + '/cluster_nets/cluster' + str(i) + '_target_net.pt'))
-                cluster.target_net.eval()
-                            
+            for cluster in self.cluster_algo.M[-1]:
+                local_net = DQN(self.n_states, self.n_actions, seed=2).to(self.device)
+                local_net.load_state_dict(torch.load(args.load_cluster + '/cluster_nets/cluster' + str(cluster.ID) + '_q_net.pt'))
+                local_net.eval()
+                target_net = DQN(self.n_states, self.n_actions, seed=2).to(self.device)
+                target_net.load_state_dict(torch.load(args.load_cluster + '/cluster_nets/cluster' + str(cluster.ID) + '_target_net.pt'))
+                target_net.eval()
+                optimizer = optim.Adam(local_net.parameters(), lr=args.lr, amsgrad=True)
+                self.cluster_models.model_dict.update({cluster.ID  :(local_net, target_net, optimizer)})
+                self.cluster_models.memory_dict.update({cluster.ID  : ReplayMemory(self.n_actions, buffer_size=int(1e5), batch_size=args.batch_size)})
+
         self.optimizer = optim.Adam(self.local_net.parameters(), lr=args.lr, amsgrad=True)
         self.memory = ReplayMemory(self.n_actions, batch_size=args.batch_size)
 
@@ -180,7 +188,7 @@ class Environment:
                 agent.update_arr_dep_veh_num(lane_vehs)
 
             if agent.agents_type == "cluster":
-                agent.step(self.eng, time, lane_vehs, lanes_count, veh_distance, self.eps, self.clustering, done)
+                agent.step(self.eng, time, lane_vehs, lanes_count, veh_distance, self.eps, self.cluster_algo, self.cluster_models, done)
             else:
                 agent.step(self.eng, time, lane_vehs, lanes_count, veh_distance, self.eps, self.memory, self.local_net, done)
 

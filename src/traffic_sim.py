@@ -99,23 +99,24 @@ for i_episode in range(num_episodes):
         if step == 0 and args.mode == 'train':
             if environ.agents_type == 'cluster':
                 all_losses = []
-                for cluster in environ.clustering.M[-1]:
-                    if len(cluster.memory) > environ.batch_size:
-                        experience = cluster.memory.sample()
+                for cluster in environ.cluster_algo.M[-1]:
+                    if len(environ.cluster_models.memory_dict[cluster.ID]) > environ.batch_size:
+                        experience = environ.cluster_models.memory_dict[cluster.ID].sample()
 
-                        for name, param in cluster.local_net.named_parameters():
-                            if param.requires_grad:
-                                dp1 = param.data[1][1]
-                                grad =  list(cluster.local_net.parameters())[0].grad
-                            break
+                        # for name, param in cluster.local_net.named_parameters():
+                        #     if param.requires_grad:
+                        #         dp1 = param.data[1][1]
+                        #         grad =  list(cluster.local_net.parameters())[0].grad
+                        #     break
 
-                        all_losses.append(optimize_model(experience, cluster.local_net, cluster.target_net, cluster.optimizer))
+                        local_net, target_net, optimizer = environ.cluster_models.model_dict[cluster.ID]
+                        all_losses.append(optimize_model(experience, local_net, target_net, optimizer))
 
-                        for name, param in cluster.local_net.named_parameters():
-                            if param.requires_grad:
-                                dp2 = param.data[1][1]
-                            break
-                        print(dp1, dp2)
+                        # for name, param in cluster.local_net.named_parameters():
+                        #     if param.requires_grad:
+                        #         dp2 = param.data[1][1]
+                        #     break
+                        # print(dp1, dp2)
                         logger.losses.append(np.mean(all_losses))
 
         elif environ.agents_type == 'learning' or environ.agents_type == 'hybrid':
@@ -148,7 +149,10 @@ for i_episode in range(num_episodes):
     print(logger.reward, environ.eng.get_average_travel_time(), environ.eng.get_finished_vehicle_count())
 
     if environ.agents_type == 'cluster':
-        print(len(environ.clustering.M[-1]), [len(x.memory) for x in environ.clustering.M[-1]])
+        print(len(environ.cluster_algo.M[-1]))
+        if len([len(x.data) for x in environ.cluster_algo.M[-1]]) < 10:
+            print([len(x.data) for x in environ.cluster_algo.M[-1]])
+        # print([len(x.data) for i in range(0, 20) for x in environ.cluster_algo.M[i]])
 
 if environ.agents_type == 'cluster':
     logger.save_clusters(environ)

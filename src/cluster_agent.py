@@ -12,7 +12,7 @@ class Cluster_Agent(Hybrid_Agent):
         self.agents_type = 'cluster'
         self.assigned_cluster = None
             
-    def step(self, eng, time, lane_vehs, lanes_count, veh_distance, eps, clustering, done):
+    def step(self, eng, time, lane_vehs, lanes_count, veh_distance, eps, cluster_algo, cluster_models, done):
         if time % self.action_freq == 0:
             if self.action_type == "reward":
                 reward = self.get_reward(lanes_count)
@@ -22,19 +22,20 @@ class Cluster_Agent(Hybrid_Agent):
                 reward = torch.tensor([reward], dtype=torch.float)
                 next_state = torch.FloatTensor(self.observe(eng, time, lanes_count, lane_vehs, veh_distance)).unsqueeze(0)
 
-                self.assigned_cluster.memory.add(self.state, self.action.ID, reward, next_state, done)
+                cluster_models.memory_dict[self.assigned_cluster_id].add(self.state, self.action.ID, reward, next_state, done)
                 self.action_type = "act"
 
             if self.action_type == "act":
                 self.state = np.asarray(self.observe(eng, time, lanes_count, lane_vehs, veh_distance))
 
-                # self.assigned_cluster = clustering.process(self.state)
-                # self.assigned_cluster = clustering.process(np.asarray([self.get_reward(lanes_count), self.phase.ID]))
-                self.assigned_cluster = clustering.process(self.get_reward(lanes_count))
-                # self.assigned_cluster = clustering.process(np.asarray([self.get_reward(lanes_count), time]))
+                # self.assigned_cluster_id = cluster_algo.process(self.state, cluster_models)
+                # self.assigned_cluster_id = cluster_algo.process(np.asarray([self.get_reward(lanes_count), self.phase.ID]), cluster_models)
+                # self.assigned_cluster_id = cluster_algo.process(np.asarray([self.get_reward(lanes_count), time]), cluster_models)
 
-
-                self.action = self.act(self.assigned_cluster.local_net, self.state, time, lanes_count, eps=eps)
+                self.assigned_cluster_id = cluster_algo.process(np.asarray(self.get_reward(lanes_count)), cluster_models)
+                # print(self.get_reward(lanes_count))
+                
+                self.action = self.act(cluster_models.model_dict[self.assigned_cluster_id][0], self.state, time, lanes_count, eps=eps)
                 self.green_time = 10
 
                 if self.action != self.phase:

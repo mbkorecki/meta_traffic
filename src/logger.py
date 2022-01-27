@@ -165,15 +165,14 @@ class Logger:
 
     def save_clusters(self, environ):
         os.mkdir(self.log_path + '/cluster_nets')
-        for i, cluster in enumerate(environ.clustering.M[-1]):
-            torch.save(cluster.local_net.state_dict(), self.log_path + '/cluster_nets/cluster' + str(i) + '_q_net.pt')
-            torch.save(cluster.target_net.state_dict(), self.log_path + '/cluster_nets/cluster' + str(i) + '_target_net.pt')
-            cluster.local_net = None
-            cluster.target_net = None
+        for key, model in zip(environ.cluster_models.model_dict.keys(), environ.cluster_models.model_dict.values()):
+            torch.save(model[0].state_dict(), self.log_path + '/cluster_nets/cluster' + str(key) + '_q_net.pt')
+            torch.save(model[1].state_dict(), self.log_path + '/cluster_nets/cluster' + str(key) + '_target_net.pt')
+
         # environ.clustering.M = [environ.clustering.M[-1]]
         
         with open(self.log_path + "/" + "clustering.dill", "wb") as f:
-            dill.dump(environ.clustering, f)
+            dill.dump(environ.cluster_algo, f)
 
     def plot_pressure(self, environ):
         """
