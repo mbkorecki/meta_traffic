@@ -79,7 +79,7 @@ for i_episode in range(num_episodes):
         environ.eng.set_replay_file(args.path + "../replay_file.txt")
 
     if args.meta:
-        config_path =  args.sim_config.split('/')[0] + '/' + args.sim_config.split('/')[1] + '/scenarios/' + str(i_episode) + "/" + str(i_episode) + ".config"
+        config_path =  args.sim_config.split('/')[0] + '/' + args.sim_config.split('/')[1] + '/4x4_10000vehs/' + str(i_episode) + "/" + str(i_episode) + ".config"
         environ.eng = cityflow.Engine(config_path, thread_num=8)
         
         

@@ -141,7 +141,7 @@ with open(args.roadnet, 'r') as roadnet_file:
 
 if args.agent_type == 'hybrid' or args.agent_type == 'cluster':
     # TRAINING
-    os.system("python traffic_sim.py --meta True --sim_config \"" +  args.scenarios + '0/0.config' + " --num_sim_steps 1800 --num_episodes 200 --lr 0.0005 --agents_type " + args.agent_type + " --batch_size 64 --path \"" + path + '/results\"')
+    os.system("python traffic_sim.py --meta True --sim_config \"" + args.scenarios + "0/0.config\"" + " --num_sim_steps 1800 --num_episodes 200 --lr 0.0005 --agents_type " + args.agent_type + " --batch_size 64 --path \"" + path + '/results\"')
 
 
     #TESTING
@@ -160,4 +160,6 @@ if args.agent_type == 'hybrid' or args.agent_type == 'cluster':
 else:
     for i in range(100):
         print("test " + str(i))
+        
+        print("python traffic_sim.py --sim_config \"" + args.scenarios + str(i) + "/" + str(i) + ".config\"" + " --num_sim_steps 1800 --num_episodes 1 --lr 0.0005 --agents_type " + args.agent_type + " --path \"" + path + '/results\"')
         os.system("python traffic_sim.py --sim_config \"" + args.scenarios + str(i) + "/" + str(i) + ".config\"" + " --num_sim_steps 1800 --num_episodes 1 --lr 0.0005 --agents_type " + args.agent_type + " --path \"" + path + '/results\"')  
