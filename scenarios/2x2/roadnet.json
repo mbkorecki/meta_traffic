@@ -1,6 +1,7 @@
 {
   "intersections": [
     {
+<<<<<<< HEAD
       "id": "intersection_1_0",
       "point": {
         "x": 0,
@@ -166,6 +167,8 @@
       "virtual": true
     },
     {
+=======
+>>>>>>> f7b34e639ea6bfe8e3c280fe628e8c5abed100a3
       "id": "intersection_1_1",
       "point": {
         "x": 0,

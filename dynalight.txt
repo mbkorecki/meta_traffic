@@ -121,6 +121,7 @@ Possible clusters: low/high traffic, congestion/freeflow, critical points
 13. visualise: cluster, state space, distances between state space points, pressure
 14. use different control approach depending on a cluster (analytic)
 
+<<<<<<< HEAD
 15. use density/flow as input
 - this seems to work sub-optimally, it learns for the first few epochs and then catastrophically fails, why?
 
@@ -346,3 +347,5 @@ python traffic_sim.py --sim_config "../scenarios/RRL_TLC/flow_4x4/0.config" --nu
 
 
 
+=======
+>>>>>>> f7b34e639ea6bfe8e3c280fe628e8c5abed100a3

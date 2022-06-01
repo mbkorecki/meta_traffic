@@ -20,13 +20,21 @@ from presslight_agent import Presslight_Agent
 from fixed_agent import Fixed_Agent
 from random_agent import Random_Agent
 from cluster_agent import Cluster_Agent
+<<<<<<< HEAD
 from denflow_agent import Denflow_Agent
+=======
+>>>>>>> f7b34e639ea6bfe8e3c280fe628e8c5abed100a3
 
 from policy_agent import DPGN, Policy_Agent
 from intersection import Lane
 
+<<<<<<< HEAD
 # import SOStream.sostream
 from clustering import Cluster_Models, Mfd_Clustering
+=======
+import SOStream.sostream
+from clustering import Cluster_Models
+>>>>>>> f7b34e639ea6bfe8e3c280fe628e8c5abed100a3
 
 class Environment:
     """
@@ -78,8 +86,11 @@ class Environment:
                 new_agent = Random_Agent(self.eng, ID=agent_id)
             elif self.agents_type == 'cluster':
                 new_agent = Cluster_Agent(self.eng, ID=agent_id, in_roads=self.eng.get_intersection_in_roads(agent_id), out_roads=self.eng.get_intersection_out_roads(agent_id), n_states=n_states, lr=args.lr, batch_size=self.batch_size)
+<<<<<<< HEAD
             elif self.agents_type == 'denflow':
                 new_agent = Denflow_Agent(self.eng, ID=agent_id, in_roads=self.eng.get_intersection_in_roads(agent_id), out_roads=self.eng.get_intersection_out_roads(agent_id), n_states=n_states, lr=args.lr, batch_size=self.batch_size)
+=======
+>>>>>>> f7b34e639ea6bfe8e3c280fe628e8c5abed100a3
             else:
                 raise Exception("The specified agent type:", args.agents_type, "is incorrect, choose from: analytical/learning/demand/hybrid/fixed/random")  
             self.agents.append(new_agent)
@@ -92,18 +103,31 @@ class Environment:
         
         if self.agents_type == 'cluster':
             self.cluster_models = Cluster_Models(n_states=n_states, n_actions=self.n_actions, lr=args.lr, batch_size=self.batch_size)
+<<<<<<< HEAD
             # self.cluster_algo = SOStream.sostream.SOStream(alpha=0, min_pts=9, merge_threshold=0.01)
             self.cluster_algo = Mfd_Clustering(self.cluster_models)
+=======
+            self.cluster_algo = SOStream.sostream.SOStream(alpha=0, min_pts=9, merge_threshold=0.01)
+            # self.cluster_algo = SOStream.sostream.SOStream(alpha=0.1, min_pts=5, merge_threshold=0.5)
+>>>>>>> f7b34e639ea6bfe8e3c280fe628e8c5abed100a3
         
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         
         if args.load:
             self.local_net = DQN(self.n_states, self.n_actions, seed=2).to(self.device)
+<<<<<<< HEAD
             self.local_net.load_state_dict(torch.load(args.load, map_location=torch.device('cpu')))
             self.local_net.eval()
             
             self.target_net = DQN(self.n_states, self.n_actions, seed=2).to(self.device)
             self.target_net.load_state_dict(torch.load(args.load, map_location=torch.device('cpu')))
+=======
+            self.local_net.load_state_dict(torch.load(args.load))
+            self.local_net.eval()
+            
+            self.target_net = DQN(self.n_states, self.n_actions, seed=2).to(self.device)
+            self.target_net.load_state_dict(torch.load(args.load))
+>>>>>>> f7b34e639ea6bfe8e3c280fe628e8c5abed100a3
             self.target_net.eval()
         else:
             self.local_net = DQN(self.n_states, self.n_actions, seed=2).to(self.device)
@@ -132,8 +156,12 @@ class Environment:
         self.agent_history = []
 
         self.lanes = []
+<<<<<<< HEAD
 
         for lane_id in self.eng.get_lane_vehicles().keys():
+=======
+        for lane_id in self.eng.get_lane_vehicle_count().keys():
+>>>>>>> f7b34e639ea6bfe8e3c280fe628e8c5abed100a3
             self.lanes.append(Lane(self.eng, ID=lane_id))
 
         self.speeds = []
@@ -155,7 +183,11 @@ class Environment:
         
         for veh_id in veh_ids:
             speed = self.eng.get_vehicle_info(veh_id)['speed']
+<<<<<<< HEAD
             speeds.append(float(speed))
+=======
+            speeds.append(speed)
+>>>>>>> f7b34e639ea6bfe8e3c280fe628e8c5abed100a3
             
             if float(speed) <= 0.1 and veh_id not in self.stopped.keys():
                 self.stopped.update({veh_id : 1})
@@ -163,7 +195,11 @@ class Environment:
             elif float(speed) > 0.1 and veh_id in self.stopped.keys():
                 self.stopped.pop(veh_id)
 
+<<<<<<< HEAD
         self.speeds.append(np.mean(speeds))
+=======
+        self.speeds.append(speeds)
+>>>>>>> f7b34e639ea6bfe8e3c280fe628e8c5abed100a3
         self.stops.append(stops)
 
         
@@ -184,6 +220,7 @@ class Environment:
         
 
         veh_distance = 0
+<<<<<<< HEAD
         if self.agents_type == "hybrid" or self.agents_type == "learning" or self.agents_type == 'cluster' or self.agents_type == 'presslight':
             veh_distance = self.eng.get_vehicle_distance()
 
@@ -193,6 +230,20 @@ class Environment:
             else:
                 agent.step(self.eng, time, lane_vehs, lanes_count, veh_distance, self.eps, self.memory, self.local_net, done)
 
+=======
+        if self.agents_type == "hybrid" or self.agents_type == "learning" or self.agents_type == 'cluster':
+            veh_distance = self.eng.get_vehicle_distance()
+
+        for agent in self.agents:
+            if agent.agents_type == "hybrid":
+                agent.update_arr_dep_veh_num(lane_vehs)
+
+            if agent.agents_type == "cluster":
+                agent.step(self.eng, time, lane_vehs, lanes_count, veh_distance, self.eps, self.cluster_algo, self.cluster_models, done)
+            else:
+                agent.step(self.eng, time, lane_vehs, lanes_count, veh_distance, self.eps, self.memory, self.local_net, done)
+
+>>>>>>> f7b34e639ea6bfe8e3c280fe628e8c5abed100a3
         if time % self.action_freq == 0: self.eps = max(self.eps-self.eps_decay,self.eps_end)
         # if time % self.eps_update == 0: self.eps = max(self.eps*self.eps_decay,self.eps_end)
 

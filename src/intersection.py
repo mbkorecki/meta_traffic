@@ -137,6 +137,7 @@ class Movement:
         :param current_movements: a list of movements that are currently enabled
         :returns: the predicted green time of the movement
         """
+<<<<<<< HEAD
 
         # start_time = time-10 if time > 10 else 0
         # self.arr_rate = self.get_arr_veh_num(start_time, time) / (time - start_time)
@@ -150,6 +151,8 @@ class Movement:
 
         # free_space = (1 - max(occupancies)) * self.out_length
         
+=======
+>>>>>>> f7b34e639ea6bfe8e3c280fe628e8c5abed100a3
         self.arr_rate = self.get_arr_veh_num(0, time) / time
         dep = self.get_dep_veh_num(0, time)
 

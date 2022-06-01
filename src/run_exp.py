@@ -99,13 +99,17 @@ def parse_args():
     parser.add_argument("--num_vehs", default=30,  type=int, help="the number of vehicles introduced into the system")
     parser.add_argument("--agent_type", default='random',  type=str, help="the number of vehicles introduced into the system")
     parser.add_argument("--scenarios", default='../scenarios/1x1sphere/1.config',  type=str, help="path to the scenarios")
+<<<<<<< HEAD
     parser.add_argument("--path", default='../scenarios/1x1sphere/',  type=str, help="path to the results for test")
     parser.add_argument("--turning_ratios", nargs='+', default=[1, 1, 1],  type=int, help="turning ratios of the vehicles in the sim")
+=======
+>>>>>>> f7b34e639ea6bfe8e3c280fe628e8c5abed100a3
 
     return parser.parse_args()
 
 
 
+<<<<<<< HEAD
 def create_scenarios(args, config):
     for i in range(200):
         os.mkdir(args.path + '/scenarios/' + str(i) + '/')
@@ -141,10 +145,52 @@ if args.agent_type == 'hybrid' or args.agent_type == 'cluster':
     # # TRAINING
 
     os.system("bsub -J job1 -n 8 -W 8:00 -R \"rusage[mem=28096]\" python traffic_sim.py --meta True --sim_config \"" + args.scenarios + "0/0.config\"" + " --num_sim_steps 1800 --num_episodes 200 --lr 0.0005 --agents_type " + args.agent_type + " --path \"" + results_path + "\"")
+=======
+def create_scenarios(path, args, config):
+    for i in range(200):
+        os.mkdir(path + '/scenarios/' + str(i) + '/')
+        generate_flow_file(path + '/scenarios/' + str(i) + '/', args.roadnet, args.num_vehs, [1, 1, 1], 1800)
+        config['dir'] = path + '/scenarios/' + str(i) + '/'
+
+        with open(path + '/scenarios/' + str(i) + '/' + str(i) + '.config', 'w') as config_file:
+            json.dump(config, config_file)
+
+args = parse_args()
+print(args)
+
+
+#create a folder for the experiment
+
+path = '../exp'
+i = 0
+while os.path.exists(path):
+    path = "../exp(" + str(i) + ")"
+    i += 1
+
+os.mkdir(path)
+os.mkdir(path + '/scenarios')
+os.mkdir(path + '/results')
+
+
+config = {"interval": 1, "seed": 0, "dir": path + '/scenarios/', "roadnetFile": "../roadnet.json", "flowFile": "flow.json", "rlTrafficLight": True, "saveReplay": False, "roadnetLogFile": "roadnetLogFile.json", "replayLogFile": "replayLogFile.txt", "laneChange": False}
+
+
+with open(args.roadnet, 'r') as roadnet_file:
+    roadnet_data = json.load(roadnet_file)
+    with open(path + '/scenarios/roadnet.json', 'w') as roadnet:
+        json.dump(roadnet_data, roadnet)
+    
+
+if args.agent_type == 'hybrid' or args.agent_type == 'cluster':
+    # TRAINING
+    os.system("python traffic_sim.py --meta True --sim_config \"" + args.scenarios + "0/0.config\"" + " --num_sim_steps 1800 --num_episodes 200 --lr 0.0005 --agents_type " + args.agent_type + " --batch_size 64 --path \"" + path + '/results\"')
+
+>>>>>>> f7b34e639ea6bfe8e3c280fe628e8c5abed100a3
 
     #TESTING
     if args.agent_type == 'cluster':
         for i in range(100):
+<<<<<<< HEAD
             os.system("bsub -w \"done(job1)\" -n 8 python traffic_sim.py --sim_config \"" + args.scenarios + str(i) + "/" + str(i) + ".config\"" + " --num_sim_steps 1800 --num_episodes 1 --lr 0.0005 --agents_type " + args.agent_type + " --path \"" + results_path + "\"" + " --load_cluster \"" + results_path  + "/" + path.split('/')[1] + '\"' + " --mode \"test\" --eps_start 0 --eps_end 0 --ID " + str(i))
     else:
         for i in range(100):
@@ -157,3 +203,21 @@ else:
     for i in range(100):
         print("test " + str(i))
         os.system("python traffic_sim.py --sim_config \"" + args.scenarios + str(i) + "/" + str(i) + ".config\"" + " --num_sim_steps 1800 --num_episodes 1 --lr 0.0005 --agents_type " + args.agent_type + " --path \"" + results_path + '\"')  
+=======
+            print("test " + str(i))
+            os.system("python traffic_sim.py --sim_config \"" +  path + '/scenarios/' + str(i) + "/" + str(i) + ".config\"" + " --num_sim_steps 1800 --num_episodes 1 --lr 0.0005 --agents_type " + args.agent_type + " --path \"" + path + '/results\"' + " --load_cluster \"" + path + '/results/scenarios_config0_' + args.agent_type  + '\"'
+              + " --mode \"test\" --eps_start 0 --eps_end 0")
+    else:
+        for i in range(100):
+            print("test " + str(i))
+            os.system("python traffic_sim.py --sim_config \"" +  path + '/scenarios/' + str(i) + "/" + str(i) + ".config\"" + " --num_sim_steps 1800 --num_episodes 1 --lr 0.0005 --agents_type " + args.agent_type + " --path \"" + path + '/results\"' + " --load \"" + path + '/results/scenarios_config0_' + args.agent_type  +'/time_target_net.pt\"'
+              + " --mode \"test\" --eps_start 0 --eps_end 0")
+
+    
+else:
+    for i in range(100):
+        print("test " + str(i))
+        
+        print("python traffic_sim.py --sim_config \"" + args.scenarios + str(i) + "/" + str(i) + ".config\"" + " --num_sim_steps 1800 --num_episodes 1 --lr 0.0005 --agents_type " + args.agent_type + " --path \"" + path + '/results\"')
+        os.system("python traffic_sim.py --sim_config \"" + args.scenarios + str(i) + "/" + str(i) + ".config\"" + " --num_sim_steps 1800 --num_episodes 1 --lr 0.0005 --agents_type " + args.agent_type + " --path \"" + path + '/results\"')  
+>>>>>>> f7b34e639ea6bfe8e3c280fe628e8c5abed100a3

@@ -46,13 +46,17 @@ def parse_args():
     parser.add_argument("--path", default='../', type=str, help="path to save data")
     parser.add_argument("--meta", default=False, type=bool, help="indicates if meta learning for ML")
     parser.add_argument("--load_cluster", default=None, type=str, help="path to the clusters and models to be loaded")
+<<<<<<< HEAD
     parser.add_argument("--ID", default=None, type=int, help="id used for naming")
+=======
+>>>>>>> f7b34e639ea6bfe8e3c280fe628e8c5abed100a3
 
     return parser.parse_args()
 
 
 args = parse_args()
 logger = Logger(args)
+<<<<<<< HEAD
 
 if args.agents_type == 'denflow':
     n_states = 2
@@ -60,6 +64,9 @@ else:
     n_states = 57
 
 environ = Environment(args, n_actions=9, n_states=n_states)
+=======
+environ = Environment(args, n_actions=9, n_states=57)
+>>>>>>> f7b34e639ea6bfe8e3c280fe628e8c5abed100a3
         
 num_episodes = args.num_episodes
 num_sim_steps = args.num_sim_steps
@@ -86,8 +93,12 @@ for i_episode in range(num_episodes):
         environ.eng.set_replay_file(args.path + "../replay_file.txt")
 
     if args.meta:
+<<<<<<< HEAD
         config_path =  args.sim_config.split('/')[0] + '/' + args.sim_config.split('/')[1] + '/5x5_900_100_3k/scenarios/' + str(i_episode) + "/" + str(i_episode) + ".config"
         print(config_path)
+=======
+        config_path =  args.sim_config.split('/')[0] + '/' + args.sim_config.split('/')[1] + '/4x4_10000vehs/' + str(i_episode) + "/" + str(i_episode) + ".config"
+>>>>>>> f7b34e639ea6bfe8e3c280fe628e8c5abed100a3
         environ.eng = cityflow.Engine(config_path, thread_num=8)
         
         
@@ -111,6 +122,7 @@ for i_episode in range(num_episodes):
                     if len(environ.cluster_models.memory_dict[cluster.ID]) > environ.batch_size:
                         experience = environ.cluster_models.memory_dict[cluster.ID].sample()
 
+<<<<<<< HEAD
                         local_net, target_net, optimizer = environ.cluster_models.model_dict[cluster.ID]
                         all_losses.append(optimize_model(experience, local_net, target_net, optimizer))
                         
@@ -125,6 +137,32 @@ for i_episode in range(num_episodes):
                 if len(environ.memory)>environ.batch_size:
                     experience = environ.memory.sample()
                     logger.losses.append(optimize_model(experience, environ.local_net, environ.target_net, environ.optimizer, tau=1))
+=======
+                        # for name, param in cluster.local_net.named_parameters():
+                        #     if param.requires_grad:
+                        #         dp1 = param.data[1][1]
+                        #         grad =  list(cluster.local_net.parameters())[0].grad
+                        #     break
+
+                        local_net, target_net, optimizer = environ.cluster_models.model_dict[cluster.ID]
+                        all_losses.append(optimize_model(experience, local_net, target_net, optimizer))
+
+                        # for name, param in cluster.local_net.named_parameters():
+                        #     if param.requires_grad:
+                        #         dp2 = param.data[1][1]
+                        #     break
+                        # print(dp1, dp2)
+                        logger.losses.append(np.mean(all_losses))
+
+        elif environ.agents_type == 'learning' or environ.agents_type == 'hybrid':
+            if len(environ.memory)>environ.batch_size:
+                experience = environ.memory.sample()
+
+        elif environ.agents_type == 'presslight':
+            if len(environ.memory)>environ.batch_size:
+                experience = environ.memory.sample()
+                logger.losses.append(optimize_model(experience, environ.local_net, environ.target_net, environ.optimizer, tau=1))
+>>>>>>> f7b34e639ea6bfe8e3c280fe628e8c5abed100a3
 
     if environ.agents_type == 'learning' or environ.agents_type == 'hybrid' or  environ.agents_type == 'presslight':
         if environ.eng.get_average_travel_time() < best_time:
@@ -136,12 +174,15 @@ for i_episode in range(num_episodes):
             best_veh_count = environ.eng.get_finished_vehicle_count()
             logger.save_models(environ, flag=True)
             environ.best_epoch = i_episode
+<<<<<<< HEAD
             
     elif environ.agents_type == 'cluster':
         if environ.eng.get_average_travel_time() < best_time:
             best_time = environ.eng.get_average_travel_time()
             logger.save_clusters(environ)
             environ.best_epoch = i_episode
+=======
+>>>>>>> f7b34e639ea6bfe8e3c280fe628e8c5abed100a3
     
     logger.log_measures(environ)
 
@@ -154,6 +195,7 @@ for i_episode in range(num_episodes):
 
     if environ.agents_type == 'cluster':
         print(len(environ.cluster_algo.M[-1]))
+<<<<<<< HEAD
         if len([len(x) for x in environ.cluster_models.memory_dict.values()]) < 10:
             print([len(x) for x in environ.cluster_models.memory_dict.values()])
 
@@ -163,4 +205,22 @@ if environ.agents_type != 'cluster':
 logger.save_log_file(environ)
 logger.serialise_data(environ)
 
+=======
+        if len([len(x.data) for x in environ.cluster_algo.M[-1]]) < 10:
+            print([len(x.data) for x in environ.cluster_algo.M[-1]])
+        # print([len(x.data) for i in range(0, 20) for x in environ.cluster_algo.M[i]])
+
+if environ.agents_type == 'cluster':
+    logger.save_clusters(environ)
+
+logger.save_models(environ, flag=None)
+logger.save_log_file(environ)
+logger.serialise_data(environ)
+
+# if environ.agents_type == 'learning' or environ.agents_type == 'hybrid' or environ.agents_type == 'presslight' or environ.agents_type == 'policy':
+#     logger.save_measures_plots()
+
+
+
+>>>>>>> f7b34e639ea6bfe8e3c280fe628e8c5abed100a3
 

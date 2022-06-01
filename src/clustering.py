@@ -1,5 +1,9 @@
+<<<<<<< HEAD
 # from SOStream.sostream import SOStream
 # from SOStream.micro_cluster import MicroCluster
+=======
+from SOStream.sostream import SOStream
+>>>>>>> f7b34e639ea6bfe8e3c280fe628e8c5abed100a3
 from dqn import DQN, ReplayMemory
 import random
 import numpy as np
@@ -8,6 +12,7 @@ import torch
 import torch.optim as optim
 
 
+<<<<<<< HEAD
 
 class Mfd_Clustering():
 
@@ -34,6 +39,8 @@ class Mfd_Clustering():
             self.M[-1][3].number_points += 1
             return 3
             
+=======
+>>>>>>> f7b34e639ea6bfe8e3c280fe628e8c5abed100a3
 class Cluster_Models():
     
     def __init__(self, n_states, n_actions, lr, batch_size):

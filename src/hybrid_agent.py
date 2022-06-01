@@ -83,7 +83,10 @@ class Hybrid_Agent(Learning_Agent):
     #         return sum_distance / num_vehs
 
     def step(self, eng, time, lane_vehs, lanes_count, veh_distance, eps, memory, local_net, done):
+<<<<<<< HEAD
         self.update_arr_dep_veh_num(lane_vehs, lanes_count)
+=======
+>>>>>>> f7b34e639ea6bfe8e3c280fe628e8c5abed100a3
         if time % self.action_freq == 0:
             if self.action_type == "reward":
                 reward = self.get_reward(lanes_count)
@@ -98,7 +101,11 @@ class Hybrid_Agent(Learning_Agent):
 
             if self.action_type == "act":
                 self.state = np.asarray(self.observe(eng, time, lanes_count, lane_vehs, veh_distance))
+<<<<<<< HEAD
                 self.action = self.act(eng, local_net, self.state, time, lanes_count, eps=eps)
+=======
+                self.action = self.act(local_net, self.state, time, lanes_count, eps=eps)
+>>>>>>> f7b34e639ea6bfe8e3c280fe628e8c5abed100a3
                 self.green_time = 10
 
                 if self.action != self.phase:

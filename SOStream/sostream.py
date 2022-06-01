@@ -49,10 +49,14 @@ class SOStream:
             self.id_count += 1
             assigned_cluster_id = new_M[-1].ID
 
+<<<<<<< HEAD
         if len(self.M) > 1000:
             del self.M[0]
         self.M.append(new_M)
         
+=======
+        self.M.append(new_M)
+>>>>>>> f7b34e639ea6bfe8e3c280fe628e8c5abed100a3
         # print('clustering ', len(assigned_cluster.memory), len(assigned_cluster.data))
         return assigned_cluster_id
 
