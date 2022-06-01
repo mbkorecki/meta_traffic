@@ -26,7 +26,7 @@ class Agent:
         self.reward_freq = 10
         
         self.action_type = "act"
-        self.clearing_time = 5
+        self.clearing_time = 2
 
         self.init_movements(eng)
         self.init_phases(eng)
