@@ -1,0 +1,348 @@
+simple neural networks trained on simple intersections with known solutions 
+dynamics of simple intersections
+dynamics of the learning process 
+dynamics of the network at inference
+
+
+
+
+torus world, closed vs open systems
+the appearing/disappearing dynamics is conditioned on the network parameters so that it can never learn it 
+
+
+in the torus world, if the cars always have the same path and speed, then it is likely that the optimal solution would be periodic 
+
+0. dqlearning, quantify the novelty of samples and use them for training proportionally to their novelty
+
+1. the reward is dependent on the dynamics of the system, in a congested state less should be expected of the agent, the reward should be normalised relative to the dynamics of the system
+
+2. optimal metrics (throughput, avg. travel time) can be computed exactly if we assume no conflicting movements; it can be approximated if we assume conflicts but know about their time dynamics
+
+3. a system that goes through the experiences and improves decisions made, perhaps testing their effectiveness, some sort of memory-replay refinement or supervised learning on optimal decisions 
+
+4. state can be represented as a graph of movements?
+
+5. an intelligent system than works even when one of the intersection in the system is intelligent and gets incrementally better with more intersections
+
+6. learning agents in the volunteer game, reinforcement learning, with the reward being the payoff
+investigate the difference between systems where agents learn the global reward, vs individual reward, vs local, mezo-reward
+how does learning affect the dynamics, what strategies are learned+evolved vs just evolved 
+
+7. extract graph topologies from sat images, generate realistic networks
+
+8. an array of simple models that answer questions such as:
+- is the decision affecting neighbours positively/negatively 
+- is my relation with my neighbours positive/negative (cooperation/competition) 
+
+=================================================
+Experiments on the small simulation/sphere-world: 
+=================================================
+A few scenarios run on the sphere-world or a simple network to study the dynamics of the system, especially the difference in dynamics between non-congested and congested states.
+
+Start with the sphere and compare to a 2x1 network. 
+
+----------------
+Parametrization:
+----------------
+1. in-flow on each movement/the number of cars/density on each movement (if we assume cyclical)
+2. paths of the cars: 
+- easy setting: no conflicting movements
+- harder setting: some conflicting movements
+- hard setting: many conflicts 
+
+--------
+Metrics:
+--------
+1. flow at movements/lanes/intersection 
+2. density at movements/lanes/intersection 
+5. pressure 
+4. number of stops 
+7. speeds
+
+6. selected phases
+3. average travel time 
+8. state?
+
+9. spread/distribution of cars in the network
+
+random movements, random lights
+
+TODO:
+- run experiments on larger closed systems (1x2 pressure does not work)
+- run experiments on open system scenario, 1x1 or larger?
+	- create a way to generate flow at random 
+		- for each in_lane of the roadnet model the in_flow
+		as a normal distribution with random mean from a uniform distribution [0, 1] and deviation 
+		from another uniform distribution, complex but more realistic
+	OR
+		- fixed number of vehicles to be introduced into the system per the sim runtime 
+		distribute this number randomly over in_lanes by creating random routes, simple but limited
+
+- train model on normal scenario ensemble, test on disrupted 
+	- design training so that guidedlight can generalise to disruptions 
+- train on 1 scenario, test on a sample 
+- add spread (second moment on density) 
+- more than one model, based on states?
+- VEHICLES HAVE CRAZY STARTING POINTS!!!
+
+1x1sphere: veh number:
+30 - free flow
+60 - medium low
+120 - medium high
+180 - breakdown
+
+python traffic_sim.py --sim_config '../exp//scenarios/0/0.config' --num_sim_steps 1800 --num_episodes 100 --lr 0.0005 --agents_type hybrid
+
+
+=====================
+CONCLUSIONS
+=====================
+1. analytic > fixed > random, but for highly congested scenario all are equally bad
+2. pressure-based reward does not work for a 1x1 sphere, hypothesis: closed system, leads to correlation between decisions and its own state, which breaks pressure 
+
+
+
+9. a traffic signal control system that controls max speed on lanes to limit/decouple interactions and slow the dynamics
+10. list interaction and try to affect them:
+- vehicles and vehicles
+- vehicles and intersection 
+- intersection+ and intersection+
+
+11. use resilience index as a reward 
+
+
+Reinforcement learning as a paradigm may be applied to problems, where the understanding of the system to be controlled is limited. The relationship between the (arbitrary) state of the system and a reward or goal (some arbitrary preferred state) is learned in a data driven way. The arbitrariness (thesis) of the system's description affects what is learned. At the same time, what is learned, speaks about the system description. By introducing unsupervised learning, clustering the data space can be continuously (incrementally) partitioned into easier to learn pieces (antithesis). Individual models of the relation(s) may be learned, evolved and co-evolved (synthesis). Both the state and reward space can undergo this defragmentation. A base model for some more frequently occurring relations (across a variety of topologies and flows) can be extracted and used as an initialisation for different settings. The clusters, relations and models can be used to reverse engineer the shattering of the system and through that key components and their interactions(!) can be identified. 
+
+Extension: when a decision is made, the state is assigned to a cluster and a model of that cluster is used. Voting systems and collective decision making can be used for states that fall on the boundaries. The boundaries of the clusters can also be studied. 
+
+Possible clusters: low/high traffic, congestion/freeflow, critical points
+
+12. what kind of metric is optimised by analytic?
+13. visualise: cluster, state space, distances between state space points, pressure
+14. use different control approach depending on a cluster (analytic)
+
+15. use density/flow as input
+- this seems to work sub-optimally, it learns for the first few epochs and then catastrophically fails, why?
+
+16. generalise to different phase possibilities - a RL network, input state of two conflicting movements, output which movement to prioritise, stabilisation mechanism 
+
+
+18. wu wei, acting is costly, avoid actions, only act when... 
+- pressure/flow+density/some metric deteriorates 
+
+
+Friday
+TODO:
+17. serialise cluster memory, look at pressure, states, actions in clusters, see if a cluster works better when switched with analytic 
+19. consider: traffic on a network is defined by the number of vehicles, (their starting times)/the average length and deviation of their route (or number of edges they go through), ordering of the edges (turning likelihood) 
+
+The travel process is: edge - node - decision (left, right, straight; coming from a distribution), repeated until leaving the system. 
+On the other hand humans, usually, travel from a start point to destination using the shortest possible path. 
+This can be approximated by sampling start+end points and creating shortest paths. 
+
+
+TODO 1. !Price of ignorance!, machine learning 
+TODO 2. look for ml professor
+
+
+Credit game 
+
+Many social systems can be expressed as a credit game, which results in a pyramid scheme set up. A dynamics of these systems can be expressed as the change of values such as: monetary, location, density etc.
+
+The two main examples of a credit game resulting in a pyramid scheme is the economic system, in which banks play the credit game with the general population through debt and the government system, where the government plays the credit game with the general population through taxation. Both these systems are characterised by a similar level of centralisation, size and rules, such as for example compulsory participation. These two systems, along with many others across different scales, interact non-linearly, making it difficult to study their emergent behaviour. However, a study of a singular, idealised dimension of the space is possible, where all the effects stemming from the interactions with other systems are simplified to a constant. 
+
+Thus, running a Monte Carlo simulation of the credit game in different networks (eg. centralised/ decentralised), scales (small/large), parameters (payoffs, constant) and initialisations (balanced/unbalanced), we can study the properties of the system.
+
+Effects, known from literature, that are expected to be corroborated: 
+- rich get richer effects 
+- sensitivity to small changes 
+- catastrophic breakdowns (low global payoffs) 
+- tragedy of the commons 
+- pyramid scheme effect 
+
+An array of competing credit game systems with different payoffs could be imagined, being connected in a graph and allowing for migrations between systems. The payoffs could be dependent on the number of variables such as number of players. 
+
+
+
+cluster 0 -> analytic, performance == worse
+cluster 3 -> analytic, performance == worse
+
+
+Ideas:
+- slowing down the speed of the flows which do not get green with analytic 
+- figuring out novel situations and using that (eg. taking analytic actions in novel states) 
+- logical constraints, regularisation: 
+if the destination lane is full -> don't give green to flows ending with it 
+- pressure in the state description?
+- memory networks
+- training a generator (autoencoder?) on the different simulations to generate likely states for training?
+- traffic system as an ising model 
+- simplified intersections with just two phases (two conflicting flows) 
+- the multi-objective paper could be more philosophical 
+
+todo: 
+- prepare training scenario and disrupted test cases, test on cluster and hybrid and analytical 
+- potentially train on disrupted as well and see if better 
+- train machine learning to do as close to what analytic does, this can be done in supervised way 
+
+Disruption paper narrative:
+- we propose a rl method which beats other methods but fails to outperform anayltical
+- this points to the importance of comparing machine learning against alternative control if possible 
+
+
+
+scenario: 4x4(training), 4x4-1d, 4x4-2d, 4x4-3d, 4x4-4d, 4x4-5d, 4x4-6d
+hybrid	           213	    258     284     322	    452	    471	    419
+cluster            222      271     318     309	    403	    470	    429
+analytical         222	    261     283     315	    399	    431	    409
+
+
+scenario: 4x4_100(training), 4x4_100-1d, 4x4_100-2d, 4x4_100-3d, 4x4_100-4d, 4x4_100-5d, 4x4_100-6d 
+hybrid	                167	    377         277         454	        438	    655	        544
+cluster 	        185         324	        278         396	        501	    620	        558
+analytical         	166	    347	        397	    509	        576	    615		656
+ 
+4x4_100-6d: ['road_1_2_0', 'road_1_1_1', 'road_3_2_0', 'road_4_2_1', 'road_3_4_0', 'road_3_3_1']
+
+Books:
+- liquid modernity
+- The Philosophy of Money 
+
+Rainer Hegselmann
+
+Each intersection states its preferences to the neighbours (eg. ranking)
+When making a decision an intersection takes preferences of its neighbours into account 
+(they could also bid)
+a very simple rule would let agent identify its own state as congested, a congested agent could send an sos signal to neighbours which would then prefer not to send cars to it and accept cars from it 
+
+consider logical self organizing rules that are negative ie. concerning what should not be done with respect to the neighbors
+the rules should be based on the information available to the agent, the agent should inform its neighbors of its willingness to accept more vehicles from each of them (normalized to [-1, 1], where negative values indicate unwillingness, and positive willingness. 
+first agents try to minimize failure of expectations (acting negatively for an agent who declared unwillingness), so that as few negative actions are taken, then they maximize the satisfaction of expectations (total willingness of its neighborhood) or its individual expectations (comparison `selfish' vs `unselfish' vs changing populations of both)  
+
+
+Exchange:
+Tokyo Institute of Tech
+- Misako Takayasu - sociophysics, traffic, ml for social good, Complex Systems
+- Petter Holme - dynamic complex networks, complexity as a pandisciplinary field 
+- Daniel Berrar - ai, ml, continual learning, self-organised maps 
+- Eric Smith - origins of life, complexity, evolution 
+
+University of Tokyo:
+1. takashi ikegami - alife, complexity, art 
+2. Hitoshi Iba - AI, Deep Learning, Evolutionary Optimisation, Swarm Intelligence
+
+
+OIST
+- Kenji Doya - RL, nns
+- Tom Froese - Complex Systems, Cognitive Science, Consciousness
+- Ulf Dieckmann - Theoretical Ecology, Evolutionary Dynamics
+- Hiroaki Kitano - systems biology, ai
+
+ideas:
+- deep learning to learn boid behaviour vs self-org
+
+Dirk paper comments:
+- title: how to improve machine learning traffic light based control and an unexpected solution
+- start paper by talking about machine learning solutions 
+- surprise with Analytic+ 
+- where machine learning/analytic works well? -  ML works well on grids, not on irregular networks
+
+
+
+JAPAN FELLOWSHIP [30th JUNE]:
+
+1. research plan
+- Please include at least the following items: 1) present research, 2) proposed research to be conducted in Japan, 3) expected outcome of the proposed research.  
+- option one: Multi-objective self-organising traffic lights 
+	- including insights from Ikegami's work on self-organization and complexity
+	- emergences from practical and philosophical perspectives 
+	- the city as a living organism, drawing inspiration from alife and biology
+	- Tokyo as an inspiration? 
+
+2. recommendation letter 
+
+3. invitation letter 
+
+4. cv
+
+OPTIMISATION PAPER [28th JUNE]:
+
+
+
+We add reference in (subsec{RL}, subsec{RL for traffic} to surveys) as well as mention two additional methods.
+
+We add two methods to our experiments (based on recommended survey - FRAP and DQN). the comparison to these methods extends the results and adds new conclusions
+
+
+bsub -n 8 -W 24:00 "python run_iterations.py 'scenarios/4x4/1.config' --save_dir ../../../scratch/mkorecki/planlight_norm1 --episodes 150 &> ../../../scratch/mkorecki/stdout_ planlight_norm1.txt"
+
+
+
+bsub -n 8 -W 24:00 "python run_colight.py 'scenarios/4x4/1.config' --save_dir ../../../scratch/mkorecki/colight_norm_1 --episodes 150 &> ../../../scratch/mkorecki/stdout_colight_norm_1.txt"
+
+
+
+
+bsub -n 8 "python run_frap.py 'scenarios/4x4mount/1.config' --save_dir frap_4x4_1 --episodes 150 &> ../../../scratch/mkorecki/stdout_frap4x4_1.txt"
+
+
+bsub -n 8 -W 24:00 -R "select[model==EPYC_7742]" -R "select[gpu_model0==NVIDIAGeForceRTX2080Ti]" -R "rusage[ngpus_excl_p=1]" -R "rusage[mem= 28096]" "python run_frap.py 'scenarios/4x4/1.config' --save_dir ../../../scratch/mkorecki/frap_norm_1 --episodes 150 &> ../../../scratch/mkorecki/stdout_norm_1.txt"
+
+
+bsub -n 8 -W 24:00 -R "select[model==EPYC_7742]" -R "select[gpu_model0==NVIDIAGeForceRTX2080Ti]" -R "rusage[ngpus_excl_p=1]" -R "rusage[mem= 28096]" "python run_frap.py 'scenarios/4x4mount/1.config' --save_dir ../../../scratch/mkorecki/frap_4x4_1 --episodes 150 &> ../../../scratch/mkorecki/stdout_frap4x4_1.txt"
+
+bsub -n 8 -W 24:00 -R "select[model==EPYC_7742]" -R "select[gpu_model0==NVIDIAGeForceRTX2080Ti]" -R "rusage[ngpus_excl_p=1]" -R "rusage[mem= 28096]" "python run_frap.py 'scenarios/4x4mount/2.config' --save_dir ../../../scratch/mkorecki/frap_4x4_2 --episodes 150 &> ../../../scratch/mkorecki/stdout_frap4x4_2.txt"
+
+bsub -n 8 -W 24:00 -R "select[model==EPYC_7742]" -R "select[gpu_model0==NVIDIAGeForceRTX2080Ti]" -R "rusage[ngpus_excl_p=1]" -R "rusage[mem= 28096]" "python run_frap.py 'scenarios/4x4mount/3.config' --save_dir ../../../scratch/mkorecki/frap_4x4_3 --episodes 150 &> ../../../scratch/mkorecki/stdout_frap4x4_3.txt"
+
+bsub -n 8 -W 24:00 -R "select[model==EPYC_7742]" -R "select[gpu_model0==NVIDIAGeForceRTX2080Ti]" -R "rusage[ngpus_excl_p=1]" -R "rusage[mem= 28096]" "python run_frap.py 'scenarios/4x4mount/4.config' --save_dir ../../../scratch/mkorecki/frap_4x4_4 --episodes 150 &> ../../../scratch/mkorecki/stdout_frap4x4_4.txt"
+
+
+bsub -n 8 -W 120:00 -R "select[model==EPYC_7742]" -R "select[gpu_model0==NVIDIAGeForceRTX2080Ti]" -R "rusage[ngpus_excl_p=1]" -R "rusage[mem= 28096]" "python run_frap.py 'scenarios/ny196/2.config' --save_dir ../../../scratch/mkorecki/ny196 --episodes 150 &> ../../../scratch/mkorecki/stdout_ny196.txt"
+
+bsub -n 8 -W 24:00 -R "select[model==EPYC_7742]" -R "select[gpu_model0==NVIDIAGeForceRTX2080Ti]" -R "rusage[ngpus_excl_p=1]" -R "rusage[mem= 28096]" "python run_frap.py 'scenarios/ny16/2.config' --save_dir ../../../scratch/mkorecki/ny16 --episodes 150 &> ../../../scratch/mkorecki/stdout_ny16.txt"
+
+
+
+
+
+bsub -n 8 -W 24:00 -R "select[model==EPYC_7742]" -R "select[gpu_model0==NVIDIAGeForceRTX2080Ti]" -R "rusage[ngpus_excl_p=1]" -R "rusage[mem= 28096]" "python run_dqn.py 'scenarios/ny16/2.config' --save_dir dqn_16 --episodes 150 &> ../../../scratch/mkorecki/dqn_ny16.txt"
+
+
+bsub -n 8 -W 24:00 -R "select[model==EPYC_7742]" -R "select[gpu_model0==NVIDIAGeForceRTX2080Ti]" -R "rusage[ngpus_excl_p=1]" -R "rusage[mem= 28096]" "python run_dqn.py 'scenarios/4x4/1.config' --save_dir dqn_4x4_normal --episodes 150 &> ../../../scratch/mkorecki/dqn_4x4_normal.txt"
+
+
+
+bsub -n 8 -W 24:00 -R "select[model==EPYC_7742]" -R "select[gpu_model0==NVIDIAGeForceRTX2080Ti]" -R "rusage[ngpus_excl_p=1]" -R "rusage[mem= 28096]" "python run_dqn.py 'scenarios/4x4mount/4.config' --save_dir dqn_4x4_4 --episodes 150 &> ../../../scratch/mkorecki/dqn_4x4_4.txt"
+
+ "python run_dqn.py 'scenarios/4x4mount/1.config' --save_dir ../../../scratch/mkorecki/dqn_4x4_1 --episodes 150 &> ../../../scratch/mkorecki/dqn4x4_1.txt"
+
+
+
+bsub -n 8 -W 24:00 -R "rusage[ngpus_excl_p=1]" -R "rusage[mem= 28096]" python run_frap.py 'scenarios/4x4mount/4.config' --save_dir ../../../scratch/mkorecki/frap_4x4_4 --episodes 150
+
+bsub -n 8 -W 24:00 -R "rusage[ngpus_excl_p=1]" -R "rusage[mem= 28096]" python run_frap.py 'scenarios/ny16/2.config' --save_dir ../../../scratch/mkorecki/frap_16 --episodes 150
+
+
+bsub -n 8 -W 24:00 -R "rusage[ngpus_excl_p=1]" -R "rusage[mem= 28096]" python run_frap.py 'scenarios/ny196/2.config' --save_dir ../../../scratch/mkorecki/frap_196 --episodes 150
+
+
+
+ 
+bsub -R "rusage[mem=28096]" python traffic_sim.py --sim_config "../scenarios/RRL_TLC/flow_1x5/0.config" --num_sim_steps 3600 --num_episodes 150 --lr 0.0005 --agents_type hybrid 
+
+bsub -R "rusage[mem=28096]" python traffic_sim.py --sim_config "../scenarios/RRL_TLC/flow_4x4/0.config" --num_sim_steps 3600 --num_episodes 150 --lr 0.0005 --agents_type hybrid 
+
+
+python traffic_sim.py --sim_config "../scenarios/RRL_TLC/flow_4x4/0.config" --num_sim_steps 3600 --num_episodes 1 --lr 0.0005 --agents_type analytical --replay True
+
+
+python traffic_sim.py --sim_config "../scenarios/RRL_TLC/flow_1x5/01.config" --num_sim_steps 3600 --num_episodes 1 --lr 0.0005 --agents_type analytical
+
+
+
+
+python traffic_sim.py --sim_config "../scenarios/RRL_TLC/flow_4x4/0.config" --num_sim_steps 3600 --num_episodes 1 --lr 0.0005 --agents_type hybrid --load "../RRL_TLC_config_hybrid/time_q_net.pt" --mode "test" --eps_start 0 --eps_end 0 
+
+
+

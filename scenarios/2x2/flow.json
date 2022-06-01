@@ -17,7 +17,7 @@
       "road_2_1_0"
     ],
     "interval": 2.0,
-    "startTime": 900,
+    "startTime": 0,
     "endTime": -1
   },
   {
@@ -38,7 +38,7 @@
       "road_1_1_2"
     ],
     "interval": 2.0,
-    "startTime": 900,
+    "startTime": 0,
     "endTime": -1
   },
   {

@@ -8,7 +8,6 @@ class Fixed_Agent(Agent):
         self.agents_type = 'fixed'
 
 
-
     def init_phases(self, eng):
         """
         initialises the phases of the Agent based on the intersection phases extracted from the simulation data
@@ -57,3 +56,5 @@ class Fixed_Agent(Agent):
         phaseID += 1
         return self.phases[phaseID]
       
+
+

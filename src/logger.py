@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import torch
 import random
 import pickle
+import dill
 
 class Logger:
     """
@@ -26,15 +27,21 @@ class Logger:
 
         self.reward = 0
 
+        self.log_path = args.path + "/" + args.sim_config.split('/')[2] +'_' + 'config' + '_' + str(args.agents_type)
 
-    def make_folder(self, args):
-        self.log_path = "../" + args.sim_config.split('/')[2] +'_' + 'config' + args.sim_config.split('/')[3].split('.')[0] + '_' + str(args.agents_type)
+        if args.load != None or args.load_cluster != None:
+            self.log_path += "_load"
+            
+        
         old_path = self.log_path
         i = 1
 
-        while os.path.exists(self.log_path):
-            self.log_path = old_path + "(" + str(i) + ")"
-            i += 1
+        if args.ID:
+            self.log_path = self.log_path + '(' + str(args.ID) + ')'
+        else:
+            while os.path.exists(self.log_path):
+                self.log_path = old_path + "(" + str(i) + ")"
+                i += 1
 
         os.mkdir(self.log_path)
 
@@ -46,7 +53,7 @@ class Logger:
         """
         self.reward = 0
         for agent in environ.agents:
-            self.reward += (agent.total_rewards / agent.reward_count)
+            self.reward += np.mean(agent.total_rewards)
 
         self.plot_rewards.append(self.reward)
         self.veh_count.append(environ.eng.get_finished_vehicle_count())
@@ -62,16 +69,29 @@ class Logger:
         
         for agent in environ.agents:
             waiting_time_dict.update({agent.ID : {}})
-            reward_dict.update({agent.ID : agent.total_rewards / agent.reward_count})
+            reward_dict.update({agent.ID : agent.total_rewards})
             for move in agent.movements.values():
                 waiting_time_dict[agent.ID].update({move.ID : (move.max_waiting_time, move.waiting_time_list)})
 
+
+        with open(self.log_path + "/" + "memory.dill", "wb") as f:
+            dill.dump(environ.memory.memory, f)
+            
+        with open(self.log_path + "/" + "agent_history.dill", "wb") as f:
+            pickle.dump(environ.agent_history, f)
         with open(self.log_path + "/" + "waiting_time.pickle", "wb") as f:
             pickle.dump(waiting_time_dict, f)
             
         with open(self.log_path + "/" + "agents_rewards.pickle", "wb") as f:
-            pickle.dump(reward_dict, f) 
+            pickle.dump(reward_dict, f)
+            
+        with open(self.log_path + "/" + "mfd.pickle", "wb") as f:
+            pickle.dump(environ.mfd_data, f)
 
+        with open(self.log_path + "/" + "stops.pickle", "wb") as f:
+            pickle.dump(environ.stops, f)
+        with open(self.log_path + "/" + "speeds.pickle", "wb") as f:
+            pickle.dump(environ.speeds, f) 
 
         if environ.agents_type == 'learning' or environ.agents_type == 'hybrid' or environ.agents_type == 'presslight' or environ.agents_type == 'policy':
             with open(self.log_path + "/" + "episode_rewards.pickle", "wb") as f:
@@ -102,13 +122,15 @@ class Logger:
         log_file.write("\n")
         log_file.write(str(self.args.lr))
         log_file.write("\n")
-
+        
         log_file.write("mean vehicle count: " + str(np.mean(self.veh_count[self.args.num_episodes-10:])) + " with sd: " + str(np.std(self.veh_count[self.args.num_episodes-10:])) +
                        "\nmean travel time: " + str(np.mean(self.travel_time[self.args.num_episodes-10:])) +
                        " with sd: " + str(np.std(self.travel_time[self.args.num_episodes-10:])) +
                        "\nmax vehicle time: " + str(np.max(self.veh_count)) +
                        "\nmin travel time: " + str(np.min(self.travel_time))
                        )
+        log_file.write("\n")
+        log_file.write("best epoch: " + str(environ.best_epoch))
         log_file.write("\n")
         log_file.write("\n")
 
@@ -124,68 +146,63 @@ class Logger:
         
         log_file.close()
 
-    def save_phase_plots(self, environ):
-        for agent in random.sample(environ.agents, 5):
-            plt.plot(agent.past_phases, '|', linewidth=25)
-            figure = plt.gcf()
-            figure.set_size_inches(20,10)
-            # plt.xticks(np.arange(0, self.args.num_sim_steps+1, step=10))
-            plt.ylabel('phase')
-            plt.xlabel('time')
-            plt.grid()
-            
-            ax = plt.gcf().get_axes()[0]
-            ax.spines['left'].set_position(('data', 0))
-            ax.spines['bottom'].set_position(('data', 0))
-            ax.spines['top'].set_visible(False)
-            ax.spines['right'].set_visible(False)
 
-            ax.set_xticks(np.arange(0, self.args.num_sim_steps+1, step=10), minor=True)
-            ax.set_xticks(np.arange(0, self.args.num_sim_steps+1, step=100))
-            ax.set_yticks(np.arange(-1, 8, step=1))
-            ax.grid(which='minor', axis='both')
-            
-            plt.savefig(self.log_path + '/phase' + str(agent.ID) + '.png', bbox_inches='tight')
-            plt.clf()
-
-
-    def save_measures_plots(self):
-        """
-        Saves plots containing the measures such as vehicle count, travel time, rewards and q losses
-        The data is over the episodes and for now works only with learning agents
-        """
-        
-        plt.plot(self.veh_count)
-        plt.ylabel('vehicle count')
-        plt.xlabel('episodes')
-        plt.savefig(self.log_path + '/vehCount.png')
-        plt.clf()
-            
-        plt.plot(self.travel_time)
-        plt.ylabel('avg travel time')
-        plt.xlabel('episodes')
-        plt.savefig(self.log_path + '/avgTime.png')
-        plt.clf()
-            
-        plt.plot(self.plot_rewards)
-        plt.ylabel('total rewards')
-        plt.xlabel('episodes')
-        plt.savefig(self.log_path + '/totalRewards.png')
-        plt.clf()
-        
-        plt.plot(self.episode_losses)
-        plt.ylabel('q loss')
-        plt.xlabel('episodes')
-        plt.savefig(self.log_path + '/qLosses.png')
-        plt.clf()
-
-
-    def save_models(self, environ):
+    def save_models(self, environ, flag):
         """
         Saves machine learning models (for now just neural networks)
         :param environ: the environment in which the model was run
+        :param flag: the flag indicating which model to save - throughput based or avg. travel time based
         """
-        for agent in environ.agents:
-            torch.save(agent.local_net.state_dict(), self.log_path + '/q_net.pt')
-            torch.save(agent.target_net.state_dict(), self.log_path + '/target_net.pt')
+        if flag is None:
+            torch.save(environ.local_net.state_dict(), self.log_path + '/reward_q_net.pt')
+            torch.save(environ.target_net.state_dict(), self.log_path + '/reward_target_net.pt') 
+        elif flag:
+            torch.save(environ.local_net.state_dict(), self.log_path + '/throughput_q_net.pt')
+            torch.save(environ.target_net.state_dict(), self.log_path + '/throughput_target_net.pt')
+        else: 
+            torch.save(environ.local_net.state_dict(), self.log_path + '/time_q_net.pt')
+            torch.save(environ.target_net.state_dict(), self.log_path + '/time_target_net.pt')
 
+
+
+    def save_clusters(self, environ):
+        if not os.path.isdir(self.log_path + '/cluster_nets'):
+            os.mkdir(self.log_path + '/cluster_nets')
+        for key, model in zip(environ.cluster_models.model_dict.keys(), environ.cluster_models.model_dict.values()):
+            torch.save(model[0].state_dict(), self.log_path + '/cluster_nets/cluster' + str(key) + '_q_net.pt')
+            torch.save(model[1].state_dict(), self.log_path + '/cluster_nets/cluster' + str(key) + '_target_net.pt')
+
+        for key, memory in zip(environ.cluster_models.memory_dict.keys(), environ.cluster_models.memory_dict.values()):
+            with open(self.log_path + "/cluster_nets/memory" + str(key) + ".dill", "wb") as f:
+                dill.dump(memory, f)
+
+            
+        # environ.clustering.M = [environ.clustering.M[-1]]
+        
+        with open(self.log_path + "/" + "clustering.dill", "wb") as f:
+            dill.dump(environ.cluster_algo, f)
+
+    def plot_pressure(self, environ):
+        """
+        plots pressure as a function of time, both avg pressure of all intersections and individual pressure
+        :param environ: the environment, after some simulation steps
+        """
+        plot_avg = []
+        plot_std = []
+        for data in environ.log_pressure:
+            plot_avg.append(np.mean(data))
+            plot_std.append(np.std(data))
+            
+        # plt.errorbar(range(len(plot_avg)), plot_avg, yerr=plot_std)
+        plt.plot(plot_avg)
+        plt.savefig(self.log_path + '/avg_pressure.png')
+        plt.clf()
+
+        plt.plot(environ.log_pressure)
+        plt.savefig(self.log_path + '/partial_pressure.png')
+        plt.clf()
+
+        with open(self.log_path + "/" + "avg_pressure.pickle", "wb") as f:
+            pickle.dump(plot_avg, f)
+        with open(self.log_path + "/" + "partial_pressure.pickle", "wb") as f:
+            pickle.dump(environ.log_pressure, f)

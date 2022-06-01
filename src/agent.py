@@ -14,9 +14,9 @@ class Agent:
         
         self.movements = {}
         self.phases = {}
-        self.clearing_phase = None
+        self.clearing_phase = Phase(0)
 
-        self.total_rewards = 0
+        self.total_rewards = []
         self.reward_count = 0
         
         self.action = 0
@@ -26,7 +26,7 @@ class Agent:
         self.reward_freq = 10
         
         self.action_type = "act"
-        self.clearing_time = 2
+        self.clearing_time = 5
 
         self.init_movements(eng)
         self.init_phases(eng)
@@ -36,6 +36,8 @@ class Agent:
         
         self.out_lanes = [x.out_lanes for x in self.movements.values()]
         self.out_lanes = set([x for sublist in self.out_lanes for x in sublist])
+
+        self.density = []
 
     def init_movements(self, eng):
         """
@@ -47,6 +49,17 @@ class Agent:
         """
         self.in_lanes_length = {}
         self.out_lanes_length = {}
+
+        # for in_road in eng.get_intersection_in_roads(self.ID):
+        #     for lane, length in eng.get_road_lanes_length(in_road):
+        #         lane_length = length
+        #         self.in_lanes_length.update({lane : length})
+
+        # for out_road in eng.get_intersection_out_roads(self.ID):
+        #     for lane, length in eng.get_road_lanes_length(out_road):
+        #         out_lane_length = length
+        #         self.out_lanes_length.update({lane : length})
+        
         for idx, roadlink in enumerate(eng.get_intersection_lane_links(self.ID)):
             lanes = roadlink[1][:]
             in_road = roadlink[0][0]
@@ -137,13 +150,22 @@ class Agent:
         return -np.abs(np.sum([x.get_pressure(lanes_count) for x in self.movements.values()]))
 
     
-    def update_arr_dep_veh_num(self, lanes_vehs):
+    def update_arr_dep_veh_num(self, lanes_vehs, lanes_count):
         """
         Updates the list containing the number vehicles that arrived and departed
         :param lanes_vehs: a dictionary with lane ids as keys and number of vehicles as values
         """
         for movement in self.movements.values():
             movement.update_arr_dep_veh_num(lanes_vehs)
+
+        d = []
+        for lane in self.in_lanes:
+            d.append(lanes_count[lane] / self.in_lanes_length[lane])
+
+        for lane in self.out_lanes:
+            d.append(lanes_count[lane] / self.out_lanes_length[lane])
+
+        self.density.append(np.mean(d))
 
 
     def update_wait_time(self, time, action, phase, lanes_count):
@@ -186,11 +208,69 @@ class Agent:
                 movement.priority = ((movement.green_time * movement.max_saturation) /
                                      (movement.green_time + movement.clearing_time + penalty_term))
         
-    def update_clear_green_time(self, time):
+    def update_clear_green_time(self, time, eng):
         """
         Updates the green times of the movements of the intersection
         :param time: the time in the simulation, at this moment only integer values are supported
         """
         for movement in self.movements.values():
-            green_time = movement.get_green_time(time, self.phase.movements)
+            green_time = movement.get_green_time(time, self.phase.movements, eng)
             movement.green_time = green_time
+
+
+
+    def step(self, eng, time, lane_vehs, lanes_count, veh_distance, eps, memory, local_net, done):
+        """
+        represents a single step of the simulation for the analytical agent
+        :param time: the current timestep
+        :param done: flag indicating weather this has been the last step of the episode, used for learning, here for interchangability of the two steps
+        """
+        if time % self.action_freq == 0:
+            if self.action_type == "act":
+                self.total_rewards += self.get_reward(lanes_count)
+                self.reward_count += 1
+                self.action = self.act(lanes_count)
+                self.green_time = 10
+                    
+                if self.phase.ID != self.action.ID:
+                    self.update_wait_time(time, self.action, self.phase, lanes_count)
+                    self.set_phase(eng, self.clearing_phase)
+                    self.action_freq = time + self.clearing_time
+                    self.action_type = "update"
+                    
+                else:
+                    self.action_freq = time + self.green_time
+
+            elif self.action_type == "update":
+                self.set_phase(eng, self.action)
+                self.action_freq = time + self.green_time
+                self.action_type = "act"
+
+
+    def get_density_flow(self, time, lanes_count):
+        flow_changes = []
+        for move in self.movements.values():
+            if time > 120:
+                flow_now = move.get_arr_veh_num(time-60, time) / 60
+                flow_before = move.get_arr_veh_num(time-120, time-60) / 60
+            else:
+                if time == 0:
+                    flow_now = 0
+                else:
+                    flow_now = move.get_arr_veh_num(0, time) / time
+                flow_before = 0
+
+            flow_change = flow_now - flow_before
+            flow_changes.append(flow_change)
+
+        if time > 120:
+            density_now = self.density[time]
+            density_before = self.density[time-120]
+        else:
+            density_now = self.density[time]
+            density_before = 0
+                
+        avg_flow_change = np.mean(flow_changes)
+        avg_density_change = density_now - density_before
+
+        return avg_flow_change, avg_density_change

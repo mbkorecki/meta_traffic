@@ -31,14 +31,15 @@ class Learning_Agent(Agent):
         self.init_phases_vectors(eng)
         self.n_actions = len(self.phases)
 
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        # self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-        self.local_net = DQN(n_states, self.n_actions, seed=2).to(self.device)
-        self.target_net = DQN(n_states, self.n_actions, seed=2).to(self.device)
+        # self.local_net = DQN(n_states, self.n_actions, seed=2).to(self.device)
+        # self.target_net = DQN(n_states, self.n_actions, seed=2).to(self.device)
 
-        self.optimizer = Adam(self.local_net.parameters(), lr=lr, amsgrad=True)
-        self.memory = ReplayMemory(self.n_actions, batch_size=batch_size)
+        # self.optimizer = Adam(self.local_net.parameters(), lr=lr, amsgrad=True)
+        # self.memory = ReplayMemory(self.n_actions, batch_size=batch_size)
         self.agents_type = 'learning'
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
                 
     def init_phases_vectors(self, eng):
@@ -57,21 +58,21 @@ class Learning_Agent(Agent):
             idx+=1    
 
 
-    def step(self, eng, time, lane_vehs, lanes_count, veh_distance, eps, done):
+    def step(self, eng, time, lane_vehs, lanes_count, veh_distance, eps, memory, local_net, done):
         if time % self.action_freq == 0:
             if self.action_type == "reward":
                 reward = self.get_reward(lanes_count)
                 self.reward = reward
-                self.total_rewards += reward
-                self.reward_count += 1
+                self.total_rewards += [reward]
                 reward = torch.tensor([reward], dtype=torch.float)
                 next_state = torch.FloatTensor(self.observe(eng, time, lanes_count, lane_vehs, veh_distance)).unsqueeze(0)
-                self.memory.add(self.state, self.action.ID, reward, next_state, done)
+
+                memory.add(self.state, self.action.ID, reward, next_state, done)
                 self.action_type = "act"
 
             if self.action_type == "act":
                 self.state = np.asarray(self.observe(eng, time, lanes_count, lane_vehs, veh_distance))
-                self.action = self.act(self.local_net, self.state, time, lanes_count, eps=eps)
+                self.action = self.act(local_net, self.state, time, lanes_count, eps=eps)
                 self.green_time = 10
 
                 if self.action != self.phase:
@@ -89,7 +90,6 @@ class Learning_Agent(Agent):
                 self.action_type = "reward"
                 self.action_freq = time + self.green_time
 
-            
     def observe(self, eng, time, lanes_count, lane_vehs, vehs_distance):
         """
         generates the observations made by the agents
@@ -139,31 +139,30 @@ class Learning_Agent(Agent):
         """
         gets the number of vehicles on the incoming lanes of the intersection
         :param eng: the cityflow simulation engine
-        :param lanes_count: a dictionary with lane ids as keys and vehicle count as values
+        :param lanes_veh: a dictionary with lane ids as keys and list of vehicle ids as values
+        :param vehs_distance: dictionary with vehicle ids as keys and their distance on their current lane as value
         """
         lanes_veh_num = []
         for road in self.in_roads:
             lanes = eng.get_road_lanes(road)
-            for lane in lanes: 
+            for lane in lanes:
                 length = self.in_lanes_length[lane]
                 seg1 = 0
                 seg2 = 0
                 seg3 = 0
                 vehs = lanes_veh[lane]
                 for veh in vehs:
-                    if vehs_distance[veh] / length >= 0.66:
-                        seg1 += 1
-                    elif vehs_distance[veh] / length >= 0.33:
-                        seg2 += 1
-                    else:
-                        seg3 +=1
+                    if veh in vehs_distance.keys():
+                        if vehs_distance[veh] / length >= 0.66:
+                            seg1 += 1
+                        elif vehs_distance[veh] / length >= 0.33:
+                            seg2 += 1
+                        else:
+                            seg3 +=1
      
                 lanes_veh_num.append(seg1 * (5 / (length/3)))
                 lanes_veh_num.append(seg2 * (5 / (length/3)))
                 lanes_veh_num.append(seg3 * (5 / (length/3)))
-                # lanes_veh_num.append(seg1)
-                # lanes_veh_num.append(seg2)
-                # lanes_veh_num.append(seg3)
 
 
         return lanes_veh_num

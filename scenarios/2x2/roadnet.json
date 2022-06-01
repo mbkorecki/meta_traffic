@@ -16,10 +16,6 @@
         "roadLinkIndices": [],
         "lightphases": [
           {
-            "time": 30,
-            "availableRoadLinks": []
-          },
-          {
             "time": 5,
             "availableRoadLinks": []
           },
@@ -28,7 +24,7 @@
             "availableRoadLinks": []
           },
           {
-            "time": 5,
+            "time": 30,
             "availableRoadLinks": []
           },
           {
@@ -36,7 +32,7 @@
             "availableRoadLinks": []
           },
           {
-            "time": 5,
+            "time": 30,
             "availableRoadLinks": []
           },
           {
@@ -44,7 +40,15 @@
             "availableRoadLinks": []
           },
           {
-            "time": 5,
+            "time": 30,
+            "availableRoadLinks": []
+          },
+          {
+            "time": 30,
+            "availableRoadLinks": []
+          },
+          {
+            "time": 30,
             "availableRoadLinks": []
           }
         ]
@@ -67,10 +71,6 @@
         "roadLinkIndices": [],
         "lightphases": [
           {
-            "time": 30,
-            "availableRoadLinks": []
-          },
-          {
             "time": 5,
             "availableRoadLinks": []
           },
@@ -79,7 +79,7 @@
             "availableRoadLinks": []
           },
           {
-            "time": 5,
+            "time": 30,
             "availableRoadLinks": []
           },
           {
@@ -87,7 +87,7 @@
             "availableRoadLinks": []
           },
           {
-            "time": 5,
+            "time": 30,
             "availableRoadLinks": []
           },
           {
@@ -95,7 +95,15 @@
             "availableRoadLinks": []
           },
           {
-            "time": 5,
+            "time": 30,
+            "availableRoadLinks": []
+          },
+          {
+            "time": 30,
+            "availableRoadLinks": []
+          },
+          {
+            "time": 30,
             "availableRoadLinks": []
           }
         ]
@@ -118,10 +126,6 @@
         "roadLinkIndices": [],
         "lightphases": [
           {
-            "time": 30,
-            "availableRoadLinks": []
-          },
-          {
             "time": 5,
             "availableRoadLinks": []
           },
@@ -130,7 +134,7 @@
             "availableRoadLinks": []
           },
           {
-            "time": 5,
+            "time": 30,
             "availableRoadLinks": []
           },
           {
@@ -138,7 +142,7 @@
             "availableRoadLinks": []
           },
           {
-            "time": 5,
+            "time": 30,
             "availableRoadLinks": []
           },
           {
@@ -146,7 +150,15 @@
             "availableRoadLinks": []
           },
           {
-            "time": 5,
+            "time": 30,
+            "availableRoadLinks": []
+          },
+          {
+            "time": 30,
+            "availableRoadLinks": []
+          },
+          {
+            "time": 30,
             "availableRoadLinks": []
           }
         ]
@@ -4233,10 +4245,6 @@
         "roadLinkIndices": [],
         "lightphases": [
           {
-            "time": 30,
-            "availableRoadLinks": []
-          },
-          {
             "time": 5,
             "availableRoadLinks": []
           },
@@ -4245,7 +4253,7 @@
             "availableRoadLinks": []
           },
           {
-            "time": 5,
+            "time": 30,
             "availableRoadLinks": []
           },
           {
@@ -4253,7 +4261,7 @@
             "availableRoadLinks": []
           },
           {
-            "time": 5,
+            "time": 30,
             "availableRoadLinks": []
           },
           {
@@ -4261,7 +4269,15 @@
             "availableRoadLinks": []
           },
           {
-            "time": 5,
+            "time": 30,
+            "availableRoadLinks": []
+          },
+          {
+            "time": 30,
+            "availableRoadLinks": []
+          },
+          {
+            "time": 30,
             "availableRoadLinks": []
           }
         ]
@@ -4284,10 +4300,6 @@
         "roadLinkIndices": [],
         "lightphases": [
           {
-            "time": 30,
-            "availableRoadLinks": []
-          },
-          {
             "time": 5,
             "availableRoadLinks": []
           },
@@ -4296,7 +4308,7 @@
             "availableRoadLinks": []
           },
           {
-            "time": 5,
+            "time": 30,
             "availableRoadLinks": []
           },
           {
@@ -4304,7 +4316,7 @@
             "availableRoadLinks": []
           },
           {
-            "time": 5,
+            "time": 30,
             "availableRoadLinks": []
           },
           {
@@ -4312,7 +4324,15 @@
             "availableRoadLinks": []
           },
           {
-            "time": 5,
+            "time": 30,
+            "availableRoadLinks": []
+          },
+          {
+            "time": 30,
+            "availableRoadLinks": []
+          },
+          {
+            "time": 30,
             "availableRoadLinks": []
           }
         ]
@@ -8399,10 +8419,6 @@
         "roadLinkIndices": [],
         "lightphases": [
           {
-            "time": 30,
-            "availableRoadLinks": []
-          },
-          {
             "time": 5,
             "availableRoadLinks": []
           },
@@ -8411,7 +8427,7 @@
             "availableRoadLinks": []
           },
           {
-            "time": 5,
+            "time": 30,
             "availableRoadLinks": []
           },
           {
@@ -8419,7 +8435,7 @@
             "availableRoadLinks": []
           },
           {
-            "time": 5,
+            "time": 30,
             "availableRoadLinks": []
           },
           {
@@ -8427,7 +8443,15 @@
             "availableRoadLinks": []
           },
           {
-            "time": 5,
+            "time": 30,
+            "availableRoadLinks": []
+          },
+          {
+            "time": 30,
+            "availableRoadLinks": []
+          },
+          {
+            "time": 30,
             "availableRoadLinks": []
           }
         ]
@@ -8450,10 +8474,6 @@
         "roadLinkIndices": [],
         "lightphases": [
           {
-            "time": 30,
-            "availableRoadLinks": []
-          },
-          {
             "time": 5,
             "availableRoadLinks": []
           },
@@ -8462,7 +8482,7 @@
             "availableRoadLinks": []
           },
           {
-            "time": 5,
+            "time": 30,
             "availableRoadLinks": []
           },
           {
@@ -8470,7 +8490,7 @@
             "availableRoadLinks": []
           },
           {
-            "time": 5,
+            "time": 30,
             "availableRoadLinks": []
           },
           {
@@ -8478,7 +8498,15 @@
             "availableRoadLinks": []
           },
           {
-            "time": 5,
+            "time": 30,
+            "availableRoadLinks": []
+          },
+          {
+            "time": 30,
+            "availableRoadLinks": []
+          },
+          {
+            "time": 30,
             "availableRoadLinks": []
           }
         ]
@@ -8501,10 +8529,6 @@
         "roadLinkIndices": [],
         "lightphases": [
           {
-            "time": 30,
-            "availableRoadLinks": []
-          },
-          {
             "time": 5,
             "availableRoadLinks": []
           },
@@ -8513,7 +8537,7 @@
             "availableRoadLinks": []
           },
           {
-            "time": 5,
+            "time": 30,
             "availableRoadLinks": []
           },
           {
@@ -8521,7 +8545,7 @@
             "availableRoadLinks": []
           },
           {
-            "time": 5,
+            "time": 30,
             "availableRoadLinks": []
           },
           {
@@ -8529,7 +8553,15 @@
             "availableRoadLinks": []
           },
           {
-            "time": 5,
+            "time": 30,
+            "availableRoadLinks": []
+          },
+          {
+            "time": 30,
+            "availableRoadLinks": []
+          },
+          {
+            "time": 30,
             "availableRoadLinks": []
           }
         ]

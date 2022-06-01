@@ -13,13 +13,14 @@ class Presslight_Agent(Learning_Agent):
     """
     The class defining an agent which controls the traffic lights using reinforcement learning approach called PressureLight
     """
-    def __init__(self, eng, ID='', in_roads=[], out_roads=[]):
+    def __init__(self, eng, ID='', in_roads=[], out_roads=[], n_states=0, lr=None, batch_size=None):
         """
         initialises the Learning Agent
         :param ID: the unique ID of the agent corresponding to the ID of the intersection it represents 
         :param eng: the cityflow simulation engine
         """
-        super().__init__(eng, ID, in_roads, out_roads)
+        super().__init__(eng, ID, in_roads, out_roads, n_states, lr, batch_size)
+        self.agents_type = 'presslight'
 
         
     def get_out_lanes_veh_num(self, eng, lanes_count):
@@ -52,12 +53,13 @@ class Presslight_Agent(Learning_Agent):
                 seg3 = 0
                 vehs = lanes_veh[lane]
                 for veh in vehs:
-                    if vehs_distance[veh] / length >= 0.66:
-                        seg1 += 1
-                    elif vehs_distance[veh] / length >= 0.33:
-                        seg2 += 1
-                    else:
-                        seg3 +=1
+                    if veh in vehs_distance.keys():
+                        if vehs_distance[veh] / length >= 0.66:
+                            seg1 += 1
+                        elif vehs_distance[veh] / length >= 0.33:
+                            seg2 += 1
+                        else:
+                            seg3 +=1
      
                 lanes_veh_num.append(seg1)
                 lanes_veh_num.append(seg2)

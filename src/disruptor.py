@@ -22,7 +22,6 @@ def parse_args():
 
 
 args = parse_args()
-
 eng = cityflow.Engine(args.sim_config, thread_num=8)
 
 agent_ids = [x for x in eng.get_intersection_ids() if not eng.is_intersection_virtual(x)]
@@ -33,7 +32,7 @@ for agent_id in agent_ids:
     new_agent = Learning_Agent(eng, ID=agent_id, in_roads=eng.get_intersection_in_roads(agent_id), out_roads=eng.get_intersection_out_roads(agent_id))
     intersections.append(new_agent)
     inter_dict.update({agent_id : new_agent})
-    
+
 roads = set()
 roads_dict = dict()
 for intersect in intersections:
@@ -49,7 +48,7 @@ for intersect in intersections:
             roads_dict.update({road : (intersect.ID, roads_dict[road])})
         else:
             roads_dict.update({road : intersect.ID})
-
+            
 roads = list(roads)
 removed_roads = []
 
@@ -60,7 +59,6 @@ for road in roads:
 for removed in removed_roads:
     roads.remove(removed)
         
-
 
             
 def generate_alt_route(source, goal, removed, path, disrupted_roads):
@@ -80,7 +78,7 @@ def generate_alt_route(source, goal, removed, path, disrupted_roads):
         if alt_routes == [] or len(path) <= len(alt_routes[0]):
             for road in inter_dict[source].out_roads:
                 new_path = path.copy()
-                if road not in removed and type(roads_dict[road]) == tuple and roads_dict[road][1] not in visited:
+                if road not in disrupted_roads and type(roads_dict[road]) == tuple and roads_dict[road][1] not in visited:
                     new_path.append(road)
                     current = roads_dict[road][1]
                     if current == goal:
@@ -102,7 +100,6 @@ with open(args.flow, "r") as flow_file:
     data = json.load(flow_file)
 
 
-
 for road in disrupted_roads:
     if road in alt_routes_dict.keys():
         alt_route = alt_routes_dict[road]
@@ -110,7 +107,6 @@ for road in disrupted_roads:
         alt_route = generate_alt_route(roads_dict[road][0], roads_dict[road][1], road, [], set(disrupted_roads))
         alt_routes_dict[road] = alt_route
     
-
 for elem in data:
     route = elem["route"]
     for road in disrupted_roads:
