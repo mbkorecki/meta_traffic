@@ -1,11 +1,8 @@
 import random
 import numpy as np
 import torch
-<<<<<<< HEAD
 import queue
 import operator
-=======
->>>>>>> f7b34e639ea6bfe8e3c280fe628e8c5abed100a3
 
 from hybrid_agent import Hybrid_Agent
 
@@ -16,15 +13,10 @@ class Cluster_Agent(Hybrid_Agent):
         super().__init__(eng, ID, in_roads, out_roads, n_states, lr, batch_size)
         self.agents_type = 'cluster'
         self.assigned_cluster = None
-<<<<<<< HEAD
         self.action_queue = queue.Queue()
             
     def step(self, eng, time, lane_vehs, lanes_count, veh_distance, eps, cluster_algo, cluster_models, done):
         self.update_arr_dep_veh_num(lane_vehs, lanes_count)
-=======
-            
-    def step(self, eng, time, lane_vehs, lanes_count, veh_distance, eps, cluster_algo, cluster_models, done):
->>>>>>> f7b34e639ea6bfe8e3c280fe628e8c5abed100a3
         if time % self.action_freq == 0:
             if self.action_type == "reward":
                 reward = self.get_reward(lanes_count)
@@ -44,7 +36,6 @@ class Cluster_Agent(Hybrid_Agent):
                 # self.assigned_cluster_id = cluster_algo.process(np.asarray([self.get_reward(lanes_count), self.phase.ID]), cluster_models)
                 # self.assigned_cluster_id = cluster_algo.process(np.asarray([self.get_reward(lanes_count), time]), cluster_models)
 
-<<<<<<< HEAD
                 flow_change, density_change = self.get_density_flow(time, lanes_count)
 
                 self.assigned_cluster_id = cluster_algo.process(flow_change, density_change)
@@ -53,11 +44,6 @@ class Cluster_Agent(Hybrid_Agent):
                 # if self.assigned_cluster_id == 2:
                 #     self.action, self.green_time = self.analytical_act(eng, time)
                 # else:
-=======
-                self.assigned_cluster_id = cluster_algo.process(np.asarray(self.get_reward(lanes_count)), cluster_models)
-                # print(self.get_reward(lanes_count))
-                
->>>>>>> f7b34e639ea6bfe8e3c280fe628e8c5abed100a3
                 self.action = self.act(cluster_models.model_dict[self.assigned_cluster_id][0], self.state, time, lanes_count, eps=eps)
                 self.green_time = 10
 
@@ -75,7 +61,6 @@ class Cluster_Agent(Hybrid_Agent):
                 self.set_phase(eng, self.action)
                 self.action_type = "reward"
                 self.action_freq = time + self.green_time
-<<<<<<< HEAD
 
 
 
@@ -172,5 +157,3 @@ class Cluster_Agent(Hybrid_Agent):
         priority_list = add_phase_to_queue(priority_list)
         # while priority_list:
         #     priority_list = add_phase_to_queue(priority_list)
-=======
->>>>>>> f7b34e639ea6bfe8e3c280fe628e8c5abed100a3

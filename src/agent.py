@@ -26,7 +26,7 @@ class Agent:
         self.reward_freq = 10
         
         self.action_type = "act"
-        self.clearing_time = 2
+        self.clearing_time = 5
 
         self.init_movements(eng)
         self.init_phases(eng)
@@ -246,7 +246,6 @@ class Agent:
                 self.action_freq = time + self.green_time
                 self.action_type = "act"
 
-<<<<<<< HEAD
 
     def get_density_flow(self, time, lanes_count):
         flow_changes = []
@@ -275,5 +274,3 @@ class Agent:
         avg_density_change = density_now - density_before
 
         return avg_flow_change, avg_density_change
-=======
->>>>>>> f7b34e639ea6bfe8e3c280fe628e8c5abed100a3

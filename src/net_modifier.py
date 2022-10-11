@@ -433,9 +433,6 @@ def decrease_lanes_length(args, factor=0.3):
 
 
 # decrease_lanes_length(args, factor=0.5)
-<<<<<<< HEAD
 
 
 draw_tikzpicture(args)
-=======
->>>>>>> f7b34e639ea6bfe8e3c280fe628e8c5abed100a3

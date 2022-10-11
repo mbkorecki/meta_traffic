@@ -121,7 +121,6 @@ Possible clusters: low/high traffic, congestion/freeflow, critical points
 13. visualise: cluster, state space, distances between state space points, pressure
 14. use different control approach depending on a cluster (analytic)
 
-<<<<<<< HEAD
 15. use density/flow as input
 - this seems to work sub-optimally, it learns for the first few epochs and then catastrophically fails, why?
 
@@ -242,11 +241,27 @@ OIST
 ideas:
 - deep learning to learn boid behaviour vs self-org
 
-Dirk paper comments:
-- title: how to improve machine learning traffic light based control and an unexpected solution
-- start paper by talking about machine learning solutions 
-- surprise with Analytic+ 
-- where machine learning/analytic works well? -  ML works well on grids, not on irregular networks
+
+===============================
+
+PAPER 3 [20th JUNE]:
+
+Andrea:
+- relative improvement index
+- why does wasserstain imply disruption etc. 
+
+Thomas:
+- visualisation of flows in terms of mode, spread and tail or sth... 
+	- length of m traveled over time 
+	- average trip per vehicle 
+	- starting times binned by 10-100?
+	- number of vehicles per lane 
+
+- This might be due to the rl agents' state description not accounting for different lengths of incoming lanes (risky)
+
+Elisabeth comments paper 3:
+- traffic example should be better introduced
+- narrowing to traffic and then widening to deep learning 
 
 
 
@@ -267,12 +282,159 @@ JAPAN FELLOWSHIP [30th JUNE]:
 4. cv
 
 OPTIMISATION PAPER [28th JUNE]:
+- optimising chaotic systems
+- system's stability as a measure of optimisation success 
+- if the system's optimum is likely to change and costly to find it makes little sense to optimise 
+- if optimum is unlikely to change or cheap to find it makes sense 
+- the optimum is relative to the observer, is set arbitrarily
+- what if we understand the optimum as the state the system tends to in some way (attractor) 
+- optimisation usually only cares about the goal not about how to get to it (only computational limitations are taken into account) 
+
+'The computational theory of mind holds that cognition is rule-based
+manipulation of abstract symbols, as epitomized by the
+digital computer program. However, this logical syntax
+leaves the concrete meaning of the symbols unaccounted for; they are simply empty placeholders. This
+problem of meaning has resulted in major stumbling
+blocks in theory of mind, as well as in the practice of
+AI and robotics, such as the symbol grounding prob-
+lem and the frame problem. The enactive critique of
+these theoretical and practical problems is centered on
+the grounding of value in the self-maintenance of
+autonomous forms of biological organization (for a
+review, see Froese & Ziemke, 2009)'
+
+‘We propose to define value as the extent to which a situation
+affects the viability of a self-sustaining and precarious
+network of processes that generates an identity.’
+
+Perhaps this inherent polarity of consciousness alteration, which Huxley famously con-
+trasted as scenarios of ‘‘heaven’’ and ‘‘hell’’, has to do
+with the fact that the organism is a whole meshwork of
+self-sustaining processes (Varela, 1991), and the intrinsic value of a specific self-sustaining neural process has
+to be balanced against the needs of the other self-
+sustaining processes of the organism as a whole.
 
 
+DOC MOBILITY APPLICATION [1st September]:
+- salvage the paperwork from jp 
 
-We add reference in (subsec{RL}, subsec{RL for traffic} to surveys) as well as mention two additional methods.
 
-We add two methods to our experiments (based on recommended survey - FRAP and DQN). the comparison to these methods extends the results and adds new conclusions
+DIRK'S RESILLIENCE [September]:
+- the goal is to introduce challenging scenarios that will be benchmarks for ML/control methods
+- prepare a set of scenarios normal/disrupted and a disruptor program 
+- run them on implemented methods as baselines 
+
+scenarios:
+- 4x4 - 4 synthetic flows
+- 2x2 - synthetic
+	- 1 dis:
+road_2_2_2 [['road_2_2_3', 'road_2_1_2', 'road_1_1_1']]
+
+- hangzhou (4x4) 
+	- 1 dis 
+road_1_3_0 [['road_1_3_1', 'road_1_4_0', 'road_2_4_3'], ['road_1_3_3', 'road_1_2_0', 'road_2_2_1']]
+	- 2 dis 
+road_3_2_1 [['road_3_2_0', 'road_4_2_1', 'road_4_3_2'], ['road_3_2_2', 'road_2_2_1', 'road_2_3_0']]
+road_3_1_1 [['road_3_1_0', 'road_4_1_1', 'road_4_2_2'], ['road_3_1_2', 'road_2_1_1', 'road_2_2_0']]
+	- 3 dis
+road_4_3_2 [['road_4_3_1', 'road_4_4_2', 'road_3_4_3'], ['road_4_3_3', 'road_4_2_2', 'road_3_2_1']]
+road_2_3_1 [['road_2_3_0', 'road_3_3_1', 'road_3_4_2'], ['road_2_3_2', 'road_1_3_1', 'road_1_4_0']]
+road_2_2_0 [['road_2_2_1', 'road_2_3_0', 'road_3_3_3'], ['road_2_2_3', 'road_2_1_0', 'road_3_1_1']]
+	- 4 dis
+road_2_3_3 [['road_2_3_0', 'road_3_3_3', 'road_3_2_2'], ['road_2_3_2', 'road_1_3_3', 'road_1_2_0']]
+road_2_2_0 [['road_2_2_1', 'road_2_3_0', 'road_3_3_3'], ['road_2_2_3', 'road_2_1_0', 'road_3_1_1']]
+road_3_2_3 [['road_3_2_0', 'road_4_2_3', 'road_4_1_2'], ['road_3_2_2', 'road_2_2_3', 'road_2_1_0']]
+road_3_4_3 [['road_3_4_0', 'road_4_4_3', 'road_4_3_2'], ['road_3_4_2', 'road_2_4_3', 'road_2_3_0']]
+
+- ny - (3x16) 
+	-3 dis
+road_3_13_2 [['road_3_13_1', 'road_3_14_2', 'road_2_14_3'], ['road_3_13_3', 'road_3_12_2', 'road_2_12_1']]
+road_2_3_3 [['road_2_3_0', 'road_3_3_3', 'road_3_2_2'], ['road_2_3_2', 'road_1_3_3', 'road_1_2_0']]
+road_2_13_2 [['road_2_13_1', 'road_2_14_2', 'road_1_14_3'], ['road_2_13_3', 'road_2_12_2', 'road_1_12_1']]
+	-6 dis
+road_2_1_1 [['road_2_1_0', 'road_3_1_1', 'road_3_2_2'], ['road_2_1_2', 'road_1_1_1', 'road_1_2_0']]
+road_1_3_0 [['road_1_3_1', 'road_1_4_0', 'road_2_4_3'], ['road_1_3_3', 'road_1_2_0', 'road_2_2_1']]
+road_2_11_3 [['road_2_11_0', 'road_3_11_3', 'road_3_10_2'], ['road_2_11_2', 'road_1_11_3', 'road_1_10_0']]
+road_2_2_0 [['road_2_2_1', 'road_2_3_0', 'road_3_3_3'], ['road_2_2_3', 'road_2_1_0', 'road_3_1_1']]
+road_2_13_0 [['road_2_13_1', 'road_2_14_0', 'road_3_14_3'], ['road_2_13_3', 'road_2_12_0', 'road_3_12_1']]
+road_2_7_2 [['road_2_7_1', 'road_2_8_2', 'road_1_8_3'], ['road_2_7_3', 'road_2_6_2', 'road_1_6_1']]
+	-9 dis
+road_2_4_0 [['road_2_4_1', 'road_2_5_0', 'road_3_5_3'], ['road_2_4_3', 'road_2_3_0', 'road_3_3_1']]
+road_1_10_0 [['road_1_10_1', 'road_1_11_0', 'road_2_11_3'], ['road_1_10_3', 'road_1_9_0', 'road_2_9_1']]
+road_2_14_0 [['road_2_14_1', 'road_2_15_0', 'road_3_15_3'], ['road_2_14_3', 'road_2_13_0', 'road_3_13_1']]
+road_2_2_3 [['road_2_2_0', 'road_3_2_3', 'road_3_1_2'], ['road_2_2_2', 'road_1_2_3', 'road_1_1_0']]
+road_1_5_0 [['road_1_5_1', 'road_1_6_0', 'road_2_6_3'], ['road_1_5_3', 'road_1_4_0', 'road_2_4_1']]
+road_2_3_3 [['road_2_3_0', 'road_3_3_3', 'road_3_2_2'], ['road_2_3_2', 'road_1_3_3', 'road_1_2_0']]
+road_2_2_1 [['road_2_2_0', 'road_3_2_1', 'road_3_3_2'], ['road_2_2_2', 'road_1_2_1', 'road_1_3_0']]
+road_3_9_2 [['road_3_9_1', 'road_3_10_2', 'road_2_10_3'], ['road_3_9_3', 'road_3_8_2', 'road_2_8_1']]
+	- 12 dis
+road_2_5_0 [['road_2_5_1', 'road_2_6_0', 'road_3_6_3'], ['road_2_5_3', 'road_2_4_0', 'road_3_4_1']]
+road_2_7_0 [['road_2_7_1', 'road_2_8_0', 'road_3_8_3'], ['road_2_7_3', 'road_2_6_0', 'road_3_6_1']]
+road_2_9_0 [['road_2_9_1', 'road_2_10_0', 'road_3_10_3'], ['road_2_9_3', 'road_2_8_0', 'road_3_8_1']]
+road_2_12_0 [['road_2_12_1', 'road_2_13_0', 'road_3_13_3'], ['road_2_12_3', 'road_2_11_0', 'road_3_11_1']]
+road_2_1_1 [['road_2_1_0', 'road_3_1_1', 'road_3_2_2'], ['road_2_1_2', 'road_1_1_1', 'road_1_2_0']]
+road_2_2_0 [['road_2_2_1', 'road_2_3_0', 'road_3_3_3'], ['road_2_2_3', 'road_2_1_0', 'road_3_1_1']]
+road_3_9_2 [['road_3_9_1', 'road_3_10_2', 'road_2_10_3'], ['road_3_9_3', 'road_3_8_2', 'road_2_8_1']]
+road_2_14_3 [['road_2_14_0', 'road_3_14_3', 'road_3_13_2'], ['road_2_14_2', 'road_1_14_3', 'road_1_13_0']]
+road_3_11_2 [['road_3_11_1', 'road_3_12_2', 'road_2_12_3'], ['road_3_11_3', 'road_3_10_2', 'road_2_10_1']]
+road_2_3_2 [['road_2_3_1', 'road_2_4_2', 'road_1_4_3'], ['road_2_3_3', 'road_2_2_2', 'road_1_2_1']]
+
+
+scenario, method: normal, 1disrupt, 2disrupt, 3disrupt, 4disrupt
+2x2, analytic: 1019.27, 1263.68
+2x2, demand: 1226.24, 1347.66
+2x2, random: 1561.42, 1569.05
+
+Hanghzou, analytic(2s): 368.46, 383.75, 385.79, 392.82, 409.07
+
+
+1. scenario analysis, average length of a path?, number of cars starting in the 3600 sec, median/average starting time?, images with removed links in red, data for three scenarios, separate variable data on disruption
+2. results, average travel time for different methods, consider sampling from disruptions 
+2.1 potential extension: double, triple flows 
+3. proposed metric 
+
+
+paper5
+==normalization layer
+==qnets with different rewards, normalised
+==trained on varied flows
+
+
+===========
+
+BANGALORE pres:
+- co2 emission link
+- time saved link 
+- local impact/global impact 
+- some key words: self-organization, complexity, traffic signal control, smart city, green technology, sustainability, adaptability, decentralised control, emergence
+
+
+Introduction
+1. me
+2. why traffic? - crisis of modernity, focal point: urban areas (urban graphics?)
+3. city is a complex system, everything is connected
+4. solutions - traffic lights, fewer cars, less lost time, less emissions
+5. what we will talk about in this presentation?
+
+Why this method?
+1. use the data from the report, show how much time is saved in luzern and how much time could be saved in bangalore, time == money[In the whole study area, the waiting time decreases from 35 seconds to 27 seconds, which is
+a reduction 22.86%]
+2. co2 saved, sustainability -> hard green stops
+3. public transport improvement, priority 
+4. adaptive, flooding etc. 
+5. simple, incremental, poorer cities can also participate, low entry cost 
+6. co2 credits ecosystem? 
+
+Summary
+
+[startup]
+- lumisiera, patent, which countries do they have it for?
+- startup campus 
+- bluelion
+- venturekick (before incorporating)
+- ifj startup support
+- discuss what role dirk would play
+
 
 
 bsub -n 8 -W 24:00 "python run_iterations.py 'scenarios/4x4/1.config' --save_dir ../../../scratch/mkorecki/planlight_norm1 --episodes 150 &> ../../../scratch/mkorecki/stdout_ planlight_norm1.txt"
@@ -347,5 +509,6 @@ python traffic_sim.py --sim_config "../scenarios/RRL_TLC/flow_4x4/0.config" --nu
 
 
 
-=======
->>>>>>> f7b34e639ea6bfe8e3c280fe628e8c5abed100a3
+
+python traffic_sim.py --sim_config "../scenarios/hangzhou/dis1.config" --num_sim_steps 3600 --num_episodes 1 --agents_type random --replay True
+

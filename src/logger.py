@@ -27,16 +27,9 @@ class Logger:
 
         self.reward = 0
 
-<<<<<<< HEAD
         self.log_path = args.path + "/" + args.sim_config.split('/')[2] +'_' + 'config' + '_' + str(args.agents_type)
 
         if args.load != None or args.load_cluster != None:
-=======
-        self.log_path = args.path + "/" + args.sim_config.split('/')[2] +'_' + 'config' + args.sim_config.split('/')[3].split('.')[0] + '_' + str(args.agents_type)
-
-
-        if args.load != None:
->>>>>>> f7b34e639ea6bfe8e3c280fe628e8c5abed100a3
             self.log_path += "_load"
             
         
@@ -173,7 +166,6 @@ class Logger:
 
 
     def save_clusters(self, environ):
-<<<<<<< HEAD
         if not os.path.isdir(self.log_path + '/cluster_nets'):
             os.mkdir(self.log_path + '/cluster_nets')
         for key, model in zip(environ.cluster_models.model_dict.keys(), environ.cluster_models.model_dict.values()):
@@ -190,18 +182,6 @@ class Logger:
         with open(self.log_path + "/" + "clustering.dill", "wb") as f:
             dill.dump(environ.cluster_algo, f)
 
-=======
-        os.mkdir(self.log_path + '/cluster_nets')
-        for key, model in zip(environ.cluster_models.model_dict.keys(), environ.cluster_models.model_dict.values()):
-            torch.save(model[0].state_dict(), self.log_path + '/cluster_nets/cluster' + str(key) + '_q_net.pt')
-            torch.save(model[1].state_dict(), self.log_path + '/cluster_nets/cluster' + str(key) + '_target_net.pt')
-
-        # environ.clustering.M = [environ.clustering.M[-1]]
-        
-        with open(self.log_path + "/" + "clustering.dill", "wb") as f:
-            dill.dump(environ.cluster_algo, f)
-
->>>>>>> f7b34e639ea6bfe8e3c280fe628e8c5abed100a3
     def plot_pressure(self, environ):
         """
         plots pressure as a function of time, both avg pressure of all intersections and individual pressure
